@@ -12,7 +12,6 @@
          SCREEN 1: CHARACTER & TEAM BRAWL SELECT SCREEN
          ==================================================================== -->
     <section id="screen-select" class="screen active">
-      <!-- Top Arcade Header -->
       <header class="select-topbar">
         <div class="brand-logo">
           <span class="logo-tag">IRON FIST &amp; BRAWL</span>
@@ -49,15 +48,9 @@
         </div>
       </header>
 
-      <!-- Main 3-Column Character / Team Select Stage -->
       <div class="select-main-layout">
-        <!-- Left: 1P Showcase OR Blue Team Lineup -->
         <div id="select-p1-panel" class="showcase-col"></div>
-
-        <!-- Center: 20-Character Roster, Presets & Stage Picker -->
         <div id="select-center-panel" class="roster-center-col"></div>
-
-        <!-- Right: 2P Showcase OR Red Team Lineup -->
         <div id="select-p2-panel" class="showcase-col"></div>
       </div>
     </section>
@@ -79,7 +72,7 @@
                 <span id="hud-p1-name" class="hud-char-name">창진쌤</span>
               </div>
               <div class="hud-right-meta">
-                <span id="hud-p1-hp-num" class="hud-hp-num">1000</span>
+                <span id="hud-p1-hp-num" class="hud-hp-num">1000 / 1000</span>
                 <div id="hud-p1-rounds" class="round-orbs"></div>
               </div>
             </div>
@@ -109,7 +102,7 @@
             <div class="hud-meta-row right">
               <div class="hud-right-meta">
                 <div id="hud-p2-rounds" class="round-orbs"></div>
-                <span id="hud-p2-hp-num" class="hud-hp-num">1000</span>
+                <span id="hud-p2-hp-num" class="hud-hp-num">1000 / 1000</span>
               </div>
               <div class="hud-name-group">
                 <span id="hud-p2-name" class="hud-char-name">김양우 [CPU]</span>
@@ -131,21 +124,20 @@
         </div>
       </div>
 
-      <!-- Top HUD Variant B: Multi-Fighter Team Brawl HUD (최대 5 vs 5 난전 전용) -->
+      <!-- Top HUD Variant B: Multi-Fighter Team Brawl HUD -->
       <div id="hud-brawl-wrap" class="fight-hud-top brawl-hud-top" style="display:none;">
-        <!-- Blue Team Force & Roster -->
         <div class="brawl-team-hud left">
           <div class="brawl-team-head">
             <span class="team-title-badge blue">BLUE TEAM <small id="brawl-t1-alive">3/3</small></span>
-            <span class="brawl-tag-hint">클릭 또는 [Tab / 1~5] 조작 캐릭터 즉시 교대</span>
+            <span class="brawl-tag-hint">클릭 또는 [Tab / Q] 조작 캐릭터 교대</span>
           </div>
           <div class="hp-bar-shell left compact">
             <div id="brawl-t1-hp" class="hp-fill p1"></div>
+            <div class="hp-bar-ticks"></div>
           </div>
           <div id="brawl-t1-chips" class="brawl-member-chips"></div>
         </div>
 
-        <!-- Center Brawl Clock & Controls -->
         <div class="hud-center-clock">
           <div id="brawl-stage-label" class="hud-stage-tag">TEAM BRAWL</div>
           <div id="brawl-timer" class="arcade-timer">99</div>
@@ -156,7 +148,6 @@
           </div>
         </div>
 
-        <!-- Red Team Force & Roster -->
         <div class="brawl-team-hud right">
           <div class="brawl-team-head right">
             <span class="brawl-tag-hint">ENEMY FORCE</span>
@@ -164,6 +155,7 @@
           </div>
           <div class="hp-bar-shell right compact">
             <div id="brawl-t2-hp" class="hp-fill p2"></div>
+            <div class="hp-bar-ticks"></div>
           </div>
           <div id="brawl-t2-chips" class="brawl-member-chips right"></div>
         </div>
@@ -175,35 +167,27 @@
           <div id="fight-stage-bg" class="arena-bg bg-corridor"></div>
           <svg id="fight-decor-svg" class="fight-decor-svg" viewBox="0 0 1600 720" preserveAspectRatio="none"></svg>
 
-          <!-- Dynamic Stage Fighters Container (2 fighters in 1v1, up to 10 in Team Brawl!) -->
           <div id="fighters-stage-layer" class="fighters-stage-layer"></div>
 
-          <!-- 60fps Hitsparks / Projectiles / Beams / Wall Cracks Canvas -->
           <canvas id="fight-fx-canvas" width="1600" height="720" class="fight-fx-canvas"></canvas>
-
-          <!-- Floating Heavy Damage Numbers Layer -->
           <div id="damage-pop-layer" class="damage-pop-layer"></div>
         </div>
 
-        <!-- Live K.O. Kill-Feed (Team Brawl & Arcade) -->
         <div id="killfeed-box" class="killfeed-box"></div>
 
-        <!-- Left / Right Real-Time Combo Counters & Callouts -->
         <div id="combo-box-1" class="combo-overlay left"></div>
         <div id="combo-box-2" class="combo-overlay right"></div>
 
-        <!-- Center Giant Arcade Callout (ROUND 1 / ALL-OUT BRAWL! / K.O.!) -->
         <div id="center-announce-banner" class="center-announce-banner">
           <div id="announce-main" class="announce-main">ROUND 1</div>
           <div id="announce-sub" class="announce-sub"></div>
         </div>
 
-        <!-- Tekken Rage Art Freeze Cut-In Overlay -->
         <div id="rage-cutin-overlay" class="rage-cutin-overlay">
           <div class="rage-cutin-slash">
-            <img id="rage-cutin-img" src="assets/sd/changjin_ego.png" alt="Rage Art" />
+            <img id="rage-cutin-img" src="assets/sd/changjin_ego.png" alt="Ultimate" />
             <div class="rage-cutin-texts">
-              <div id="rage-cutin-char" class="rage-char-tag">RAGE ART</div>
+              <div id="rage-cutin-char" class="rage-char-tag">ULTIMATE SKILL</div>
               <div id="rage-cutin-move" class="rage-move-title">최고출력 - 대포 999</div>
               <div id="rage-cutin-quote" class="rage-quote">“이걸로 끝이다!”</div>
             </div>
@@ -212,35 +196,34 @@
 
         <!-- Optional Click / Touch Virtual Arcade Pad -->
         <div id="virtual-arcade-pad" class="virtual-arcade-pad">
-          <button onclick="FightEngine.swapControlledAlly()">🔄 태그교대 [Tab]</button>
-          <button onclick="FightEngine.pressVirtualAction('dash')">⚡ 대시</button>
-          <button onclick="FightEngine.pressVirtualAction('light')">👊 약연타 [J]</button>
-          <button onclick="FightEngine.pressVirtualAction('low')">🦵 하단 [↓+J]</button>
-          <button onclick="FightEngine.pressVirtualAction('heavy')">💥 강타 [K]</button>
-          <button class="accent-cyan" onclick="FightEngine.pressVirtualAction('launcher')">🚀 어퍼 [↓+K]</button>
-          <button onclick="FightEngine.pressVirtualAction('throw')">🤼 잡기 [L]</button>
-          <button class="accent-gold" onclick="FightEngine.pressVirtualAction('sp1')">✨ 필살1 [U]</button>
-          <button class="accent-orange" onclick="FightEngine.pressVirtualAction('sp2')">🛡️ 아머강습 [I]</button>
-          <button class="accent-red" onclick="FightEngine.pressVirtualAction('rage')">🔥 레이지아츠 [O]</button>
+          <button onclick="FightEngine.swapControlledAlly()">🔄 아군교대 [Tab]</button>
+          <button onclick="FightEngine.pressVirtualAction('dash')">⚡ 대시 [Shift]</button>
+          <button onclick="FightEngine.selectSlot(1)">1번 슬롯</button>
+          <button onclick="FightEngine.selectSlot(2)">2번 슬롯</button>
+          <button onclick="FightEngine.selectSlot(3)">3번 슬롯</button>
+          <button onclick="FightEngine.selectSlot(4)">4번 슬롯</button>
+          <button class="accent-cyan" onclick="FightEngine.pressVirtualAction('enter')">⚔️ 선택기술 발동 [Enter]</button>
+          <button class="accent-red" onclick="FightEngine.pressVirtualAction('ult')">🔥 필살기 [5]</button>
         </div>
       </div>
 
-      <!-- Bottom Super / Heat Gauge & Move Command Strip -->
-      <div class="fight-hud-bottom">
+      <!-- Bottom Skill Slot Bar (1~4 Slot Select + Enter Execute | 5 Direct Ultimate) -->
+      <div class="fight-hud-bottom slot-dock-bar">
         <div class="super-meter-box left">
           <div class="super-meter-track">
             <div id="hud-p1-meter" class="super-meter-fill p1"></div>
           </div>
-          <div id="hud-p1-meter-txt" class="super-meter-label">HEAT 50%</div>
+          <div id="hud-p1-meter-txt" class="super-meter-label">필살 게이지 0%</div>
         </div>
 
-        <div id="hud-movelist-strip" class="movelist-strip"></div>
+        <!-- 5-Slot Tactical Dock -->
+        <div id="hud-skill-dock" class="hud-skill-dock"></div>
 
         <div class="super-meter-box right">
           <div class="super-meter-track right">
             <div id="hud-p2-meter" class="super-meter-fill p2"></div>
           </div>
-          <div id="hud-p2-meter-txt" class="super-meter-label right">HEAT 50%</div>
+          <div id="hud-p2-meter-txt" class="super-meter-label right">필살 게이지 0%</div>
         </div>
       </div>
     </section>
@@ -250,22 +233,20 @@
          ==================================================================== -->
     <div id="pause-modal" class="arcade-modal">
       <div id="pause-modal-card" class="arcade-modal-card">
-        <div class="result-badge">PAUSED · COMMAND GUIDE</div>
-        <h2 class="result-headline win" style="font-size:26px;margin-bottom:10px;">일시정지 &amp; 조작 커맨드 표</h2>
+        <div class="result-badge">PAUSED · CONTROLS GUIDE</div>
+        <h2 class="result-headline win" style="font-size:26px;margin-bottom:10px;">일시정지 &amp; 조작 가이드</h2>
         <div class="cmd-table">
-          <div><strong>전진 / 후진(자동가드)</strong> <span>A · D (또는 ← · →)</span></div>
-          <div><strong>점프 / 앉기</strong> <span>W · S (또는 ↑ · ↓)</span></div>
-          <div><strong>스텝 대시 / 코리안 백대시</strong> <span>Shift 또는 →→ / ←← 두 번 연타</span></div>
-          <div><strong>수동 가드 (저스트 가드 지원)</strong> <span>Space 길게 누르기 (앉은 채로 하단 가드)</span></div>
-          <div><strong>3단 러시 콤보 (기본 연속기)</strong> <span>J - J - J 연타 (또는 Z - Z - Z)</span></div>
-          <div><strong>하단 스윕 킥 (서서 가드 파훼)</strong> <span>↓ + J (또는 ↓ + Z)</span></div>
-          <div><strong>헤비 스매시 / 벽 꽝 유발</strong> <span>K (또는 X)</span></div>
-          <div><strong style="color:#00e5ff;">라이징 어퍼 (공중 콤보 띄우기!)</strong> <span>↓ + K 또는 → + K (띄운 뒤 J-J-I 연계!)</span></div>
-          <div><strong>가드 불능 잡기 / 잡기 풀기</strong> <span>근접 L (또는 G)</span></div>
-          <div><strong style="color:#f5d76e;">고유 필살기 1 (장풍·레이저·돌진)</strong> <span>U (또는 C)</span></div>
-          <div><strong style="color:#ff9f43;">파워 크러시 강습기 (슈퍼아머·바운드)</strong> <span>I (또는 V) — HEAT 25% 소모</span></div>
-          <div><strong style="color:#ff4757;">🔥 레이지 아츠 (초필살기)</strong> <span>O (또는 B) — 체력 35% 이하 RAGE 또는 HEAT 100%</span></div>
-          <div><strong style="color:#55efc4;">🔄 [팀 난전] 조작 아군 즉시 교대</strong> <span>Tab 또는 숫자키 [1 ~ 5]</span></div>
+          <div><strong>앞뒤 이동</strong> <span>A · D &nbsp;또는&nbsp; ← · → (연타/Shift: 스텝 대시)</span></div>
+          <div><strong>점프 / 숙이기</strong> <span>W · S &nbsp;또는&nbsp; ↑ · ↓</span></div>
+          <div><strong style="color:#00e5ff;">가드 (수비 / 저스트 가드)</strong> <span>Space 길게 누르기 (숙이기 + Space: 하단 가드)</span></div>
+          <div><strong style="color:#f5d76e;">기술 슬롯 선택 (유지됨)</strong> <span>숫자키 [1] · [2] · [3] · [4] 선택</span></div>
+          <div><strong style="color:#55efc4;">선택된 슬롯 기술 발동</strong> <span>Enter (다른 숫자 누르기 전까지 해당 기술만 발동!)</span></div>
+          <div><strong>[1번 슬롯] 속공 연타</strong> <span>쿨타임 0초 · 연속 Enter로 3단 러시 (숙이면 하단킥 / 점프공격)</span></div>
+          <div><strong>[2번 슬롯] 어퍼 &amp; 가드파쇄</strong> <span>초저쿨(0.25초) · 공중 띄우기 &amp; 상대 가드 내구도 대폭 파괴</span></div>
+          <div><strong>[3번 슬롯] 고유 기술 1</strong> <span>초저쿨(0.40초) · 캐릭터 시그니처 장풍 · 레이저 · 돌진기</span></div>
+          <div><strong>[4번 슬롯] 고유 강습기 2</strong> <span>초저쿨(0.55초) · 슈퍼아머 돌파 &amp; 공중 바운드 강타</span></div>
+          <div><strong style="color:#ff4757;">🔥 [5번] 초필살기 (즉시 발동)</strong> <span>숫자키 [5]를 눌렀을 때만 즉시 발동! (게이지 100% 또는 위기 RAGE)</span></div>
+          <div><strong style="color:#a29bfe;">🔄 [팀 난전] 아군 태그 교대</strong> <span>Tab 또는 Q 키 (또는 상단 아군 초상화 클릭)</span></div>
         </div>
         <div class="result-actions">
           <button class="arcade-btn primary" onclick="FightEngine.togglePause()">계속 싸우기 [ESC]</button>

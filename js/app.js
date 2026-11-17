@@ -320,9 +320,10 @@ const AppController = (() => {
         </div>
 
         <div class="showcase-moves-box">
-          <div class="mv-row"><span class="mv-key">${slot === 1 ? 'U / C' : 'Num4'}</span> <strong>${sp1Name}</strong></div>
-          <div class="mv-row"><span class="mv-key armor">${slot === 1 ? 'I / V' : 'Num5'}</span> <strong>${sp2Name}</strong> <em>(슈퍼아머)</em></div>
-          <div class="mv-row"><span class="mv-key rage">${slot === 1 ? 'O / B' : 'Num6'}</span> <strong>🔥 ${rageName}</strong></div>
+          <div class="mv-row"><span class="mv-key">${slot === 1 ? '1~2+Enter' : 'Num1~2'}</span> <strong>속공 3연타 · 라이징 어퍼</strong></div>
+          <div class="mv-row"><span class="mv-key">${slot === 1 ? '3 + Enter' : 'Num3'}</span> <strong>${sp1Name}</strong></div>
+          <div class="mv-row"><span class="mv-key armor">${slot === 1 ? '4 + Enter' : 'Num4'}</span> <strong>${sp2Name}</strong> <em>(슈퍼아머)</em></div>
+          <div class="mv-row"><span class="mv-key rage">${slot === 1 ? '숫자 [5]' : 'Num5'}</span> <strong>🔥 ${rageName}</strong> <em>(즉시발동)</em></div>
         </div>
       </div>
     `;
@@ -396,7 +397,7 @@ const AppController = (() => {
           ${isSoloRaid
             ? `<span style="color:#f5d76e;font-weight:900;">👑 1 vs ${oppIds.length} 보스 레이드! 단독 체력 x${Math.min(2.8, 1 + (oppIds.length - 1) * 0.45).toFixed(1)}배 강화 적용</span>`
             : (isBlue
-                ? '💡 전투 중 [Tab] 또는 [1~5] 키로 생존 아군 누구든 즉시 교대 조작 가능!'
+                ? '💡 전투 중 [Tab] 또는 [Q] 키로 생존 아군 누구든 즉시 교대 조작 가능!'
                 : '💡 중앙 초상화를 우클릭하면 바로 RED 팀에 추가·제외됩니다.')}
         </div>
       </div>

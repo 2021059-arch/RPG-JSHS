@@ -1,7 +1,10 @@
 // ==========================================================================
 // 전곽: IRON FIST (THE BEST) — 60fps 2D Fighting & Multi-Team Brawl Engine
-// (1v1 정통 철권 대전 + 최대 5vs5 다대다 팀 난전 · 다중 타겟 광역 타격 · Tab 실시간 태그 교대 ·
-//  AI 올스타 난전 관전 · 1vs다수 레이드 보스 보정 · 공중 콤보 · 토네이도 바운드 · 벽 꽝 · 레이지 아츠)
+// [조작 패치 & 밸런스 패치 적용본]
+// · 이동 / 점프 / 숙이기: WASD 및 화살표키 동시 지원
+// · 가드: 스페이스바 (Space, 숙이기+Space 하단 가드 & 저스트 가드)
+// · 기술 슬롯: [1] [2] [3] [4] 숫자키로 슬롯 선택 유지 ➔ [Enter] 키로 해당 슬롯 기술 연속 발동! (초저쿨타임)
+// · 초필살기: [5] 숫자키를 눌렀을 때만 즉시 발동! (게이지 100% 또는 체력 30% 이하 RAGE 각성)
 // ==========================================================================
 
 const FIGHT_STAGES = [
@@ -13,27 +16,28 @@ const FIGHT_STAGES = [
   { id: 'bg-udon',       name: '우동집 특이점',   sub: '시간 대칭성 왜곡 아레나',          bgm: 'boss' }
 ];
 
+// [밸런스 패치] 전 캐릭터 총합 스탯 예산(12점) 균등화 + 아키타입별 체력·가드 내구도 차별화
 const FIGHTER_PROFILES = {
-  changjin:    { arch: 'ALL-ROUND', tag: '과구리 정권 포격가',    stats: [5, 4, 4], accent: '#ff4757', sp1: 'proj_cannon',  sp2: 'cannon_rush' },
-  yangwoo:     { arch: 'BOSS',      tag: '창의관 절대 지배자',    stats: [5, 4, 4], accent: '#f5d76e', sp1: 'heavy_lunge',  sp2: 'gravity_slam' },
-  jerok:       { arch: 'ZONER',     tag: '7색 레이저 & 신축팔',   stats: [4, 4, 5], accent: '#00e5ff', sp1: 'beam_rainbow', sp2: 'pierce_lance' },
-  yonghae:     { arch: 'POWER',     tag: '물리학 중력 파쇄가',    stats: [5, 3, 4], accent: '#3498db', sp1: 'proj_wave',    sp2: 'gravity_slam' },
-  jiwon:       { arch: 'RUSHDOWN',  tag: '갤럭시 S펜 초고속 발도', stats: [4, 5, 4], accent: '#00e5ff', sp1: 'rush_slash',   sp2: 'flash_cut' },
-  park_clones: { arch: 'TECHNICAL', tag: '하이브 분신 협공술',    stats: [3, 4, 4], accent: '#a55eea', sp1: 'proj_wave',    sp2: 'cannon_rush' },
-  seojangwon:  { arch: 'RUSHDOWN',  tag: '1시 면학 폭주 인파이터', stats: [4, 5, 3], accent: '#a55eea', sp1: 'rush_slash',   sp2: 'flash_cut' },
-  einstein:    { arch: 'RUSHDOWN',  tag: '심야 사감 암습 추격자',  stats: [4, 5, 4], accent: '#00cec9', sp1: 'rush_slash',   sp2: 'flash_cut' },
-  jongsam:     { arch: 'ZONER',     tag: '황금 6익 [언어] 마법사', stats: [5, 3, 5], accent: '#f5d76e', sp1: 'proj_wing',    sp2: 'sky_wings' },
-  minji:       { arch: 'RUSHDOWN',  tag: '산혼철조 혈투 어쌔신',   stats: [4, 5, 3], accent: '#ff2a36', sp1: 'rush_claws',   sp2: 'flash_cut' },
-  hyunmin:     { arch: 'DEFENSE',   tag: '켐벨 철벽 가드 & 계승권',stats: [4, 4, 3], accent: '#2ecc71', sp1: 'proj_cannon',  sp2: 'cannon_rush' },
-  shelly:      { arch: 'POWER',     tag: '괴력 용병 브롤러',      stats: [5, 3, 4], accent: '#ff6b6b', sp1: 'heavy_lunge',  sp2: 'gravity_slam' },
-  yongsun:     { arch: 'BALANCE',   tag: '모스 경도 금강 권법가',  stats: [4, 4, 3], accent: '#f39c12', sp1: 'heavy_lunge',  sp2: 'cannon_rush' },
-  samchongsa:  { arch: 'BOSS',      tag: '진명 케르베로스 괴수',   stats: [5, 3, 5], accent: '#00e5ff', sp1: 'proj_wither',  sp2: 'gravity_slam' },
-  donggyun:    { arch: 'GRAPPLER',  tag: '장팔 리치 그랩 파이터',  stats: [4, 3, 5], accent: '#a55eea', sp1: 'heavy_lunge',  sp2: 'pierce_lance' },
-  hyunseung:   { arch: 'POWER',     tag: '우동집 특급 식객 무투가',stats: [5, 4, 4], accent: '#f1c40f', sp1: 'heavy_lunge',  sp2: 'gravity_slam' },
-  hyunwoo:     { arch: 'ALL-ROUND', tag: '초고속 카피 아츠 격투가',stats: [4, 5, 4], accent: '#8e44ad', sp1: 'proj_cannon',  sp2: 'flash_cut' },
-  seungdae:    { arch: 'POWER',     tag: '호통 중저음 충격파',    stats: [5, 3, 4], accent: '#e67e22', sp1: 'heavy_lunge',  sp2: 'gravity_slam' },
-  jusook:      { arch: 'TECHNICAL', tag: '화실의 우아한 카운터',   stats: [3, 4, 5], accent: '#ff9ff3', sp1: 'proj_wave',    sp2: 'pierce_lance' },
-  mingi:       { arch: 'BOSS',      tag: '[규칙] 불가시 초고속신', stats: [5, 5, 4], accent: '#00e5ff', sp1: 'rush_slash',   sp2: 'flash_cut' }
+  changjin:    { arch: 'ALL-ROUND', tag: '과구리 정권 포격가',     stats: [4, 4, 4], hp: 1020, guard: 105, accent: '#ff4757', sp1: 'proj_cannon',  sp2: 'cannon_rush' },
+  yangwoo:     { arch: 'POWER',     tag: '창의관 절대 지배자',     stats: [5, 3, 4], hp: 1080, guard: 115, accent: '#f5d76e', sp1: 'heavy_lunge',  sp2: 'gravity_slam' },
+  jerok:       { arch: 'ZONER',     tag: '7색 레이저 & 신축팔',    stats: [4, 3, 5], hp: 940,  guard: 95,  accent: '#00e5ff', sp1: 'beam_rainbow', sp2: 'pierce_lance' },
+  yonghae:     { arch: 'POWER',     tag: '물리학 중력 파쇄가',     stats: [5, 3, 4], hp: 1070, guard: 110, accent: '#3498db', sp1: 'proj_wave',    sp2: 'gravity_slam' },
+  jiwon:       { arch: 'RUSHDOWN',  tag: '갤럭시 S펜 초고속 발도',  stats: [4, 5, 3], hp: 960,  guard: 100, accent: '#00e5ff', sp1: 'rush_slash',   sp2: 'flash_cut' },
+  park_clones: { arch: 'TECHNICAL', tag: '하이브 분신 협공술',     stats: [4, 4, 4], hp: 1000, guard: 105, accent: '#a55eea', sp1: 'proj_wave',    sp2: 'cannon_rush' },
+  seojangwon:  { arch: 'RUSHDOWN',  tag: '1시 면학 폭주 인파이터',  stats: [4, 5, 3], hp: 960,  guard: 95,  accent: '#a55eea', sp1: 'rush_slash',   sp2: 'flash_cut' },
+  einstein:    { arch: 'RUSHDOWN',  tag: '심야 사감 암습 추격자',   stats: [4, 5, 3], hp: 960,  guard: 100, accent: '#00cec9', sp1: 'rush_slash',   sp2: 'flash_cut' },
+  jongsam:     { arch: 'ZONER',     tag: '황금 6익 [언어] 마법사',  stats: [4, 3, 5], hp: 930,  guard: 95,  accent: '#f5d76e', sp1: 'proj_wing',    sp2: 'sky_wings' },
+  minji:       { arch: 'RUSHDOWN',  tag: '산혼철조 혈투 어쌔신',    stats: [4, 5, 3], hp: 950,  guard: 95,  accent: '#ff2a36', sp1: 'rush_claws',   sp2: 'flash_cut' },
+  hyunmin:     { arch: 'DEFENSE',   tag: '켐벨 철벽 가드 & 계승권', stats: [4, 4, 4], hp: 1060, guard: 135, accent: '#2ecc71', sp1: 'proj_cannon',  sp2: 'cannon_rush' },
+  shelly:      { arch: 'POWER',     tag: '괴력 용병 브롤러',       stats: [5, 3, 4], hp: 1100, guard: 110, accent: '#ff6b6b', sp1: 'heavy_lunge',  sp2: 'gravity_slam' },
+  yongsun:     { arch: 'DEFENSE',   tag: '모스 경도 금강 권법가',   stats: [4, 4, 4], hp: 1060, guard: 135, accent: '#f39c12', sp1: 'heavy_lunge',  sp2: 'cannon_rush' },
+  samchongsa:  { arch: 'POWER',     tag: '진명 케르베로스 괴수',    stats: [5, 3, 4], hp: 1080, guard: 110, accent: '#00e5ff', sp1: 'proj_wither',  sp2: 'gravity_slam' },
+  donggyun:    { arch: 'GRAPPLER',  tag: '장팔 리치 파쇄 파이터',   stats: [4, 3, 5], hp: 1050, guard: 105, accent: '#a55eea', sp1: 'heavy_lunge',  sp2: 'pierce_lance' },
+  hyunseung:   { arch: 'POWER',     tag: '우동집 특급 식객 무투가', stats: [5, 4, 3], hp: 1060, guard: 105, accent: '#f1c40f', sp1: 'heavy_lunge',  sp2: 'gravity_slam' },
+  hyunwoo:     { arch: 'RUSHDOWN',  tag: '초고속 카피 아츠 격투가', stats: [4, 5, 3], hp: 980,  guard: 100, accent: '#8e44ad', sp1: 'proj_cannon',  sp2: 'flash_cut' },
+  seungdae:    { arch: 'POWER',     tag: '호통 중저음 충격파',     stats: [5, 3, 4], hp: 1090, guard: 115, accent: '#e67e22', sp1: 'heavy_lunge',  sp2: 'gravity_slam' },
+  jusook:      { arch: 'TECHNICAL', tag: '화실의 우아한 카운터',    stats: [3, 4, 5], hp: 980,  guard: 115, accent: '#ff9ff3', sp1: 'proj_wave',    sp2: 'pierce_lance' },
+  mingi:       { arch: 'RUSHDOWN',  tag: '[규칙] 불가시 초고속신',  stats: [4, 5, 3], hp: 950,  guard: 95,  accent: '#00e5ff', sp1: 'rush_slash',   sp2: 'flash_cut' }
 };
 
 const FightEngine = (() => {
@@ -42,29 +46,36 @@ const FightEngine = (() => {
   const GROUND_Y = 605;
   const WALL_LEFT = 95;
   const WALL_RIGHT = 1505;
-  const GRAVITY = 2450;
+  const GRAVITY = 2480;
+  const MAX_JUGGLE_HITS = 4; // 무한 공중 콤보 방지 상한
+
+  // 초저쿨타임 설정 (요청 반영: 기술 쿨타임 최소화!)
+  const SLOT_COOLDOWNS = {
+    1: 0.00, // 1번 속공 연타: 완전 무쿨
+    2: 0.25, // 2번 어퍼 & 가드파쇄: 0.25초 초저쿨
+    3: 0.40, // 3번 고유 기술 1: 0.40초 초저쿨
+    4: 0.55  // 4번 고유 강습기 2: 0.55초 초저쿨
+  };
 
   let rafId = null;
   let lastTs = 0;
   let running = false;
   let paused = false;
   let showHitboxes = false;
-  let brawlSpeed = 1.0; // 1.0 | 1.5 | 2.0 (팀 난전 배속 지원)
+  let brawlSpeed = 1.0;
   let lastAiSfxTs = 0;
 
-  // 매치 설정 상태
   let matchConfig = {
     mode: 'vs_cpu',        // 'vs_cpu' | 'brawl' | 'arcade' | 'vs_2p' | 'training'
     difficulty: 'normal',  // 'easy' | 'normal' | 'hard'
     stageId: 'bg-corridor',
-    brawlControl: 'player',// 'player' (직접 조작 + Tab 교대) | 'spectate' (전원 AI 관전)
+    brawlControl: 'player',// 'player' | 'spectate'
     team1Ids: ['changjin', 'hyunmin', 'jiwon'],
     team2Ids: ['yangwoo', 'jerok', 'yonghae'],
     arcadeStageIdx: 0,
     arcadeLadder: []
   };
 
-  // 라운드 및 팀 리스트 상태
   let roundNum = 1;
   let roundTimer = 60;
   let roundPhase = 'intro'; // 'intro' | 'fight' | 'ko_freeze' | 'round_over' | 'match_over'
@@ -76,23 +87,15 @@ const FightEngine = (() => {
   let team1 = [];
   let team2 = [];
   let allFighters = [];
-  let controlledFighter = null; // 현재 1P 키보드로 직접 조종 중인 파이터
-  let p2Fighter = null;         // 2인 로컬 대전 시 2P 파이터
+  let controlledFighter = null;
+  let p2Fighter = null;
   let team1RoundsWon = 0;
   let team2RoundsWon = 0;
   let projectiles = [];
 
-  // 카메라 리그 상태
-  const cam = {
-    zoom: 1.0,
-    x: 0,
-    y: 0,
-    shake: 0
-  };
-
-  // 입력 상태
+  const cam = { zoom: 1.0, x: 0, y: 0, shake: 0 };
   const keysDown = new Set();
-  const tapTracker = { p1Left: 0, p1Right: 0, p2Left: 0, p2Right: 0 };
+  const tapTracker = { p1Left: -9999, p1Right: -9999, p2Left: -9999, p2Right: -9999 };
   let inputsBound = false;
 
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -116,166 +119,168 @@ const FightEngine = (() => {
   }
 
   // ==========================================================================
-  // 1. 캐릭터별 기술 테이블 생성 (기본기 + 고유기 2종 + 레이지 아츠)
+  // 1. 밸런스 패치된 기술 데이터 (슬롯 1~4 + 5번 초필살기)
   // ==========================================================================
   function buildMoveSet(charId) {
     const db = getCharData(charId);
     const prof = getProfile(charId);
-    const reachBonus = (prof.stats[2] - 3) * 20;
-    const pwrMult = 0.92 + prof.stats[0] * 0.04;
-    const spdTrim = prof.stats[1] >= 5 ? 0.86 : (prof.stats[1] <= 3 ? 1.08 : 0.96);
+    const reachBonus = (prof.stats[2] - 4) * 18;
+    // 과도한 딜 격차를 줄인 정밀 공격력 배율 (0.94x ~ 1.06x)
+    const pwrMult = 0.88 + prof.stats[0] * 0.035;
+    const spdTrim = prof.stats[1] >= 5 ? 0.90 : (prof.stats[1] <= 3 ? 1.06 : 0.98);
 
-    const s1Name = db.skills[0] ? db.skills[0].name : '특수 견제';
+    const s1Name = db.skills[0] ? db.skills[0].name : '속공 연타';
     const s2Name = db.skills[1] ? db.skills[1].name : '비기 연격';
     const s3Name = db.skills[2] ? db.skills[2].name : '초강습 파쇄';
-    const egoSk = db.skills[3] || { name: '레이지 아츠', quote: '이걸로 끝이다!' };
+    const egoSk = db.skills[3] || { name: '초필살기', quote: '이걸로 끝이다!' };
     const rageName = egoSk.name.replace(/^\[E\.G\.O\]\s*/, '');
 
+    const isRangedSp1 = prof.sp1.startsWith('proj_') || prof.sp1.startsWith('beam_');
+
     return {
+      // [슬롯 1 - 1타]
       jab1: {
-        id: 'jab1', name: '스트레이트 잽', height: 'high',
-        startup: 0.07 * spdTrim, active: 0.08, recovery: 0.16,
-        dmg: Math.round(42 * pwrMult), chip: 4, guardDmg: 9, meterGain: 7,
+        id: 'jab1', slotNum: 1, name: '속공 1타', height: 'high',
+        startup: 0.07 * spdTrim, active: 0.08, recovery: 0.14,
+        dmg: Math.round(30 * pwrMult), chip: 2, guardDmg: 7, meterGain: 8,
         range: 148 + reachBonus, hitYOff: -95, hitH: 95,
-        pushHit: 105, pushBlock: 90, launchVy: 0, airPopVy: -520,
-        hitstun: 0.30, blockstun: 0.16, hitstop: 0.045,
+        pushHit: 95, pushBlock: 85, launchVy: 0, airPopVy: -490,
+        hitstun: 0.28, blockstun: 0.14, hitstop: 0.04,
         lungeVx: 145,
         poses: ['slash', 'slash', 'idle'], vfx: 'slash', spark: 'light',
-        cancels: ['jab2', 'heavy', 'launcher', 'low', 'sp1', 'sp2', 'rage']
+        cancels: ['jab2', 'low', 'launcher', 'sp1', 'sp2', 'rage']
       },
+      // [슬롯 1 - 2타]
       jab2: {
-        id: 'jab2', name: '러시 콤비네이션', height: 'mid',
-        startup: 0.08 * spdTrim, active: 0.09, recovery: 0.19,
-        dmg: Math.round(52 * pwrMult), chip: 5, guardDmg: 12, meterGain: 9,
+        id: 'jab2', slotNum: 1, name: '속공 2타', height: 'mid',
+        startup: 0.08 * spdTrim, active: 0.09, recovery: 0.16,
+        dmg: Math.round(38 * pwrMult), chip: 3, guardDmg: 10, meterGain: 9,
         range: 164 + reachBonus, hitYOff: -98, hitH: 100,
-        pushHit: 145, pushBlock: 115, launchVy: 0, airPopVy: -540,
-        hitstun: 0.34, blockstun: 0.18, hitstop: 0.055,
-        lungeVx: 210,
+        pushHit: 135, pushBlock: 105, launchVy: 0, airPopVy: -510,
+        hitstun: 0.32, blockstun: 0.16, hitstop: 0.05,
+        lungeVx: 205,
         poses: ['pierce', 'action', 'idle'], vfx: 'pierce', spark: 'light',
-        cancels: ['jab3', 'heavy', 'launcher', 'sp1', 'sp2', 'rage']
+        cancels: ['jab3', 'launcher', 'sp1', 'sp2', 'rage']
       },
+      // [슬롯 1 - 3타 피니시]
       jab3: {
-        id: 'jab3', name: s1Name, height: 'mid',
-        startup: 0.11 * spdTrim, active: 0.11, recovery: 0.28,
-        dmg: Math.round(78 * pwrMult), chip: 9, guardDmg: 20, meterGain: 13,
-        range: 188 + reachBonus, hitYOff: -100, hitH: 110,
-        pushHit: 440, pushBlock: 200, launchVy: -360, airPopVy: -420,
+        id: 'jab3', slotNum: 1, name: s1Name, height: 'mid',
+        startup: 0.10 * spdTrim, active: 0.11, recovery: 0.24,
+        dmg: Math.round(56 * pwrMult), chip: 5, guardDmg: 16, meterGain: 12,
+        range: 184 + reachBonus, hitYOff: -100, hitH: 110,
+        pushHit: 390, pushBlock: 180, launchVy: -330, airPopVy: -420,
         causesKnockdown: true, causesBoundInAir: true, wallSplats: true,
-        hitstun: 0.48, blockstun: 0.22, hitstop: 0.08,
-        lungeVx: 290,
+        hitstun: 0.44, blockstun: 0.20, hitstop: 0.075,
+        lungeVx: 270,
         poses: ['action', 'skill1', 'guard'], vfx: 'blunt', spark: 'heavy',
         cancels: ['sp1', 'sp2', 'rage']
       },
+      // [슬롯 1 + 숙이기(S/↓)] 하단 스윕 킥 (서서 가드 파훼!)
       low: {
-        id: 'low', name: '하단 스윕 킥', height: 'low',
-        startup: 0.12 * spdTrim, active: 0.10, recovery: 0.28,
-        dmg: Math.round(58 * pwrMult), chip: 6, guardDmg: 14, meterGain: 10,
-        range: 178 + reachBonus, hitYOff: -45, hitH: 65,
-        pushHit: 180, pushBlock: 140, launchVy: -290, airPopVy: -420,
+        id: 'low', slotNum: 1, name: '하단 스윕 킥', height: 'low',
+        startup: 0.11 * spdTrim, active: 0.10, recovery: 0.24,
+        dmg: Math.round(46 * pwrMult), chip: 4, guardDmg: 14, meterGain: 10,
+        range: 176 + reachBonus, hitYOff: -45, hitH: 65,
+        pushHit: 175, pushBlock: 130, launchVy: -280, airPopVy: -410,
         causesKnockdown: true, crouchAnim: true,
-        hitstun: 0.42, blockstun: 0.24, hitstop: 0.065,
-        lungeVx: 220,
+        hitstun: 0.40, blockstun: 0.20, hitstop: 0.06,
+        lungeVx: 210,
         poses: ['guard', 'dash2', 'guard'], vfx: 'slash', spark: 'heavy',
         cancels: ['sp1', 'sp2', 'rage']
       },
-      heavy: {
-        id: 'heavy', name: '헤비 스매시', height: 'mid',
-        startup: 0.13 * spdTrim, active: 0.11, recovery: 0.27,
-        dmg: Math.round(86 * pwrMult), chip: 10, guardDmg: 24, meterGain: 14,
-        range: 190 + reachBonus, hitYOff: -105, hitH: 115,
-        pushHit: 420, pushBlock: 220, launchVy: 0, airPopVy: -560,
-        wallSplats: true,
-        hitstun: 0.42, blockstun: 0.22, hitstop: 0.08,
-        lungeVx: 250,
-        poses: ['action', 'blunt', 'idle'], vfx: 'blunt', spark: 'heavy',
-        cancels: ['launcher', 'sp1', 'sp2', 'rage']
-      },
-      launcher: {
-        id: 'launcher', name: '라이징 어퍼 (띄우기!)', height: 'mid',
-        startup: 0.14 * spdTrim, active: 0.11, recovery: 0.31,
-        dmg: Math.round(74 * pwrMult), chip: 8, guardDmg: 18, meterGain: 15,
-        range: 175 + reachBonus, hitYOff: -120, hitH: 145,
-        pushHit: 135, pushBlock: 160, launchVy: -940, airPopVy: -680,
-        isLauncher: true,
-        hitstun: 0.62, blockstun: 0.26, hitstop: 0.09,
-        lungeVx: 215,
-        poses: ['guard', 'pierce', 'skill2'], vfx: 'pierce', spark: 'launcher',
-        cancels: ['sp1', 'sp2', 'rage']
-      },
+      // [슬롯 1 + 대시] 대시 강습
       dash_atk: {
-        id: 'dash_atk', name: '대시 어설트', height: 'mid',
-        startup: 0.09 * spdTrim, active: 0.12, recovery: 0.25,
-        dmg: Math.round(82 * pwrMult), chip: 9, guardDmg: 22, meterGain: 13,
-        range: 194 + reachBonus, hitYOff: -100, hitH: 110,
-        pushHit: 470, pushBlock: 230, launchVy: -380, airPopVy: -520,
+        id: 'dash_atk', slotNum: 1, name: '대시 어설트', height: 'mid',
+        startup: 0.09 * spdTrim, active: 0.11, recovery: 0.22,
+        dmg: Math.round(58 * pwrMult), chip: 5, guardDmg: 18, meterGain: 12,
+        range: 188 + reachBonus, hitYOff: -100, hitH: 110,
+        pushHit: 420, pushBlock: 200, launchVy: -340, airPopVy: -490,
         causesKnockdown: true, wallSplats: true,
-        hitstun: 0.45, blockstun: 0.20, hitstop: 0.08,
-        lungeVx: 520,
+        hitstun: 0.42, blockstun: 0.18, hitstop: 0.07,
+        lungeVx: 480,
         poses: ['dash2', 'blunt', 'guard'], vfx: 'blunt', spark: 'heavy',
         cancels: ['sp1', 'sp2', 'rage']
       },
+      // [공중 Enter] 점프 오버헤드 타격 (숙여 가드 파훼!)
       air_atk: {
-        id: 'air_atk', name: '점프 오버헤드 스매시', height: 'overhead',
-        startup: 0.08, active: 0.18, recovery: 0.14,
-        dmg: Math.round(72 * pwrMult), chip: 8, guardDmg: 18, meterGain: 12,
-        range: 170 + reachBonus, hitYOff: -70, hitH: 115,
-        pushHit: 180, pushBlock: 140, launchVy: 0, airPopVy: 420,
+        id: 'air_atk', slotNum: 1, name: '점프 오버헤드', height: 'overhead',
+        startup: 0.08, active: 0.17, recovery: 0.12,
+        dmg: Math.round(54 * pwrMult), chip: 5, guardDmg: 16, meterGain: 11,
+        range: 168 + reachBonus, hitYOff: -70, hitH: 115,
+        pushHit: 165, pushBlock: 130, launchVy: 0, airPopVy: 400,
         causesBoundInAir: true,
-        hitstun: 0.42, blockstun: 0.22, hitstop: 0.07,
+        hitstun: 0.40, blockstun: 0.20, hitstop: 0.065,
         lungeVx: 0,
         poses: ['dash2', 'slash', 'action'], vfx: 'slash', spark: 'heavy',
         cancels: []
       },
-      throw_grab: {
-        id: 'throw_grab', name: '테이크다운 잡기', height: 'throw',
-        startup: 0.10, active: 0.09, recovery: 0.34,
-        dmg: Math.round(115 * pwrMult), chip: 0, guardDmg: 0, meterGain: 16,
-        range: 140, hitYOff: -100, hitH: 110,
-        isThrow: true,
-        poses: ['dash', 'action', 'idle'], vfx: 'none', spark: 'heavy',
-        cancels: []
+
+      // [슬롯 2] 라이징 어퍼 & 가드 파쇄 (공중 콤보 시동 + 높은 가드 데미지!)
+      launcher: {
+        id: 'launcher', slotNum: 2, name: '라이징 어퍼', height: 'mid',
+        cooldown: SLOT_COOLDOWNS[2],
+        startup: 0.13 * spdTrim, active: 0.11, recovery: 0.26,
+        dmg: Math.round(60 * pwrMult), chip: 6, guardDmg: 38, meterGain: 14,
+        range: 176 + reachBonus, hitYOff: -120, hitH: 145,
+        pushHit: 130, pushBlock: 160, launchVy: -910, airPopVy: -620,
+        isLauncher: true,
+        hitstun: 0.58, blockstun: 0.22, hitstop: 0.085,
+        lungeVx: 220,
+        poses: ['guard', 'pierce', 'skill2'], vfx: 'pierce', spark: 'launcher',
+        cancels: ['sp1', 'sp2', 'rage']
       },
+
+      // [슬롯 3] 캐릭터 고유 기술 1 (장풍 · 7색 레이저 · 과구리포 · 초고속 돌진기)
       sp1: {
-        id: 'sp1', name: s2Name, quote: db.skills[1] ? db.skills[1].quote : '',
+        id: 'sp1', slotNum: 3, name: s2Name, quote: db.skills[1] ? db.skills[1].quote : '',
         height: 'mid',
-        startup: 0.15 * spdTrim, active: 0.13, recovery: 0.30,
-        dmg: Math.round(96 * pwrMult), chip: 14, guardDmg: 24, meterGain: 16,
-        range: (prof.sp1.startsWith('beam_') ? 740 : (prof.sp1.startsWith('proj_') ? 210 : 240 + reachBonus)),
-        hitYOff: -105, hitH: 120,
-        pushHit: 360, pushBlock: 200, launchVy: -420, airPopVy: -580,
+        cooldown: SLOT_COOLDOWNS[3],
+        startup: (isRangedSp1 ? 0.19 : 0.14) * spdTrim,
+        active: 0.12,
+        recovery: isRangedSp1 ? 0.27 : 0.24,
+        dmg: Math.round((isRangedSp1 ? 62 : 74) * pwrMult),
+        chip: 5, guardDmg: 18, meterGain: 15,
+        range: (prof.sp1 === 'beam_rainbow' ? 520 : (prof.sp1.startsWith('proj_') ? 195 : 230 + reachBonus)),
+        hitYOff: -105, hitH: 118,
+        pushHit: 320, pushBlock: 180, launchVy: isRangedSp1 ? -280 : -390, airPopVy: -520,
         specialKind: prof.sp1,
         wallSplats: true,
-        hitstun: 0.46, blockstun: 0.22, hitstop: 0.085,
-        lungeVx: prof.sp1.startsWith('proj_') || prof.sp1.startsWith('beam_') ? -50 : 480,
+        hitstun: 0.42, blockstun: 0.18, hitstop: 0.075,
+        lungeVx: isRangedSp1 ? -40 : 450,
         poses: ['skill1', 'skill2', 'idle'], vfx: 'pierce', spark: 'special',
         cancels: ['sp2', 'rage']
       },
+
+      // [슬롯 4] 캐릭터 고유 강습기 2 (슈퍼아머 돌파 & 토네이도 바운드 — 무자원 초저쿨!)
       sp2: {
-        id: 'sp2', name: s3Name, quote: db.skills[2] ? db.skills[2].quote : '',
-        height: 'mid', meterCost: 25,
+        id: 'sp2', slotNum: 4, name: s3Name, quote: db.skills[2] ? db.skills[2].quote : '',
+        height: 'mid',
+        cooldown: SLOT_COOLDOWNS[4],
         powerCrush: true,
-        startup: 0.16 * spdTrim, active: 0.14, recovery: 0.32,
-        dmg: Math.round(132 * pwrMult), chip: 18, guardDmg: 38, meterGain: 0,
-        range: (prof.sp2 === 'sky_wings' ? 580 : 255 + reachBonus),
-        hitYOff: -115, hitH: 135,
-        pushHit: 580, pushBlock: 270, launchVy: -620, airPopVy: -620,
+        startup: 0.16 * spdTrim, active: 0.13, recovery: 0.28,
+        dmg: Math.round(86 * pwrMult), chip: 8, guardDmg: 28, meterGain: 16,
+        range: (prof.sp2 === 'sky_wings' ? 420 : 240 + reachBonus),
+        hitYOff: -115, hitH: 132,
+        pushHit: 520, pushBlock: 230, launchVy: -560, airPopVy: -580,
         specialKind: prof.sp2,
         causesKnockdown: true, causesBoundInAir: true, wallSplats: true,
-        hitstun: 0.56, blockstun: 0.24, hitstop: 0.10,
-        lungeVx: prof.sp2 === 'sky_wings' ? 0 : 590,
+        hitstun: 0.50, blockstun: 0.22, hitstop: 0.09,
+        lungeVx: prof.sp2 === 'sky_wings' ? 0 : 540,
         poses: ['action', 'skill3', 'guard'], vfx: 'blunt', spark: 'special',
         cancels: ['rage']
       },
+
+      // [5번 키 전용] 초필살기 (숫자 5 눌렀을 때만 즉시 발동!)
       rage: {
-        id: 'rage', name: rageName, quote: egoSk.quote || '이걸로 끝이다!!',
+        id: 'rage', slotNum: 5, name: rageName, quote: egoSk.quote || '이걸로 끝이다!!',
         height: 'mid', isRageArt: true,
         powerCrush: true,
-        startup: 0.14, active: 0.18, recovery: 0.42,
-        dmg: Math.round(255 * pwrMult), chip: 32, guardDmg: 55, meterGain: 0,
-        range: 340 + reachBonus, hitYOff: -125, hitH: 155,
-        pushHit: 680, pushBlock: 320, launchVy: -720, airPopVy: -720,
-        hitstun: 0.85, blockstun: 0.32, hitstop: 0.13,
-        lungeVx: 760,
+        startup: 0.13, active: 0.18, recovery: 0.38,
+        dmg: Math.round(205 * pwrMult), chip: 22, guardDmg: 50, meterGain: 0,
+        range: 330 + reachBonus, hitYOff: -125, hitH: 155,
+        pushHit: 650, pushBlock: 300, launchVy: -700, airPopVy: -700,
+        hitstun: 0.80, blockstun: 0.28, hitstop: 0.13,
+        lungeVx: 720,
         poses: ['ego', 'skill3', 'ego'], vfx: 'ego', spark: 'rage',
         cancels: []
       }
@@ -283,14 +288,11 @@ const FightEngine = (() => {
   }
 
   // ==========================================================================
-  // 2. 파이터 엔티티 생성 및 다대다 스폰 배치
+  // 2. 파이터 엔티티 생성 (슬롯 상태 & 초저쿨 타이머 포함)
   // ==========================================================================
   function getSpawnX(team, idx, count) {
     if (count <= 1) return team === 1 ? 470 : 1130;
-    if (team === 1) {
-      // 전열부터 후열로 자연스러운 간격 배치
-      return clamp(560 - idx * 96, WALL_LEFT + 35, 620);
-    }
+    if (team === 1) return clamp(560 - idx * 96, WALL_LEFT + 35, 620);
     return clamp(1040 + idx * 96, 980, WALL_RIGHT - 35);
   }
 
@@ -305,16 +307,16 @@ const FightEngine = (() => {
     const prof = getProfile(charId);
     CharacterSprites.preloadCharSprites(charId);
 
-    // 1 vs 다수(3인 이상) 비대칭 난전 시 단독 파이터에게 레이드 보스 보정 자동 부여!
     const isRaidBoss = isBrawlMode() && count === 1 && oppCount >= 3;
-    const hpMult = isRaidBoss ? Math.min(2.8, 1 + (oppCount - 1) * 0.45) : 1.0;
-    const maxHp = Math.round(1000 * hpMult);
+    const hpMult = isRaidBoss ? Math.min(2.7, 1 + (oppCount - 1) * 0.42) : 1.0;
+    const maxHp = Math.round((prof.hp || 1000) * hpMult);
+    const maxGuard = prof.guard || 100;
 
     return {
       uid: `t${team}_${idx}_${charId}`,
-      team,         // 1 (Blue) | 2 (Red)
-      teamIdx: idx, // 0..4
-      slot: team,   // 호환용
+      team,
+      teamIdx: idx,
+      slot: team,
       charId,
       name: db.name.split(' (')[0],
       fullName: db.name,
@@ -334,10 +336,15 @@ const FightEngine = (() => {
       maxHp,
       hp: maxHp,
       trailHp: maxHp,
-      meter: 50,
-      guardHp: 100,
+      meter: matchConfig.mode === 'training' ? 100 : 0, // 밸런스 패치: 0%에서 교전으로 충전!
+      maxGuard,
+      guardHp: maxGuard,
       inRage: false,
       rageArtUsed: false,
+
+      // 숫자 슬롯 선택 유지 상태 (기본 1번 슬롯 장착!)
+      selectedSlot: 1, // 1 | 2 | 3 | 4
+      slotCooldowns: { 1: 0, 2: 0, 3: 0, 4: 0 },
 
       state: 'idle',
       stateTime: 0,
@@ -355,10 +362,9 @@ const FightEngine = (() => {
 
       stunTimer: 0,
       juggleCount: 0,
+      continuousTakenDmg: 0,
       boundUsedInCombo: false,
       wallSplatUsedInCombo: false,
-      throwEscapeWindow: 0,
-      grabTarget: null,
       rageTarget: null,
 
       comboCount: 0,
@@ -367,7 +373,6 @@ const FightEngine = (() => {
       calloutText: '',
       calloutTimer: 0,
 
-      // 난전 누적 전적 (MVP 산출용)
       totalDamageDealt: 0,
       kosScored: 0,
 
@@ -392,10 +397,12 @@ const FightEngine = (() => {
     f.facing = f.team === 1 ? 1 : -1;
     f.hp = f.maxHp;
     f.trailHp = f.maxHp;
-    f.meter = matchConfig.mode === 'training' ? 100 : Math.min(100, Math.max(50, f.meter));
-    f.guardHp = 100;
+    // 이전 라운드 잔여 게이지 일부 이월 (트레이닝은 100%)
+    f.meter = matchConfig.mode === 'training' ? 100 : Math.min(100, Math.round(f.meter * 0.35));
+    f.guardHp = f.maxGuard;
     f.inRage = false;
     f.rageArtUsed = false;
+    f.slotCooldowns = { 1: 0, 2: 0, 3: 0, 4: 0 };
     f.state = 'idle';
     f.stateTime = 0;
     f.crouching = false;
@@ -410,10 +417,9 @@ const FightEngine = (() => {
     f.moveProjectileSpawned = false;
     f.stunTimer = 0;
     f.juggleCount = 0;
+    f.continuousTakenDmg = 0;
     f.boundUsedInCombo = false;
     f.wallSplatUsedInCombo = false;
-    f.throwEscapeWindow = 0;
-    f.grabTarget = null;
     f.rageTarget = null;
     f.comboCount = 0;
     f.comboDamage = 0;
@@ -425,16 +431,14 @@ const FightEngine = (() => {
     f.aiComboQueue = [];
   }
 
-  // 가장 가까운 생존 적 탐색
   function findNearestEnemy(f) {
     const oppTeam = f.team === 1 ? team2 : team1;
     const living = oppTeam.filter(e => e.hp > 0 && e.state !== 'ko');
     if (living.length === 0) return oppTeam[0] || null;
 
-    // AI 분산 타겟팅: 지정된 AI 타겟이 살아있으면 일정 시간 유지
     if (f.isCpu && f.aiTargetUid) {
       const locked = living.find(e => e.uid === f.aiTargetUid);
-      if (locked && Math.random() < 0.92) return locked;
+      if (locked && Math.random() < 0.90) return locked;
     }
 
     let best = living[0];
@@ -450,7 +454,7 @@ const FightEngine = (() => {
   }
 
   // ==========================================================================
-  // 3. 매치 시작 · 실시간 아군 태그 교대 · 리매치
+  // 3. 매치 시작 · 슬롯 선택 · 아군 태그 · 라운드 진행
   // ==========================================================================
   function startMatch(opts = {}) {
     matchConfig.mode = opts.mode || 'vs_cpu';
@@ -505,7 +509,6 @@ const FightEngine = (() => {
     team2 = t2Ids.map((cid, idx) => createFighter(2, idx, t2Ids.length, t1Ids.length, cid, matchConfig.mode !== 'vs_2p'));
     allFighters = [...team1, ...team2];
 
-    // 초기 AI 타겟을 골고루 분산시켜 다대다 난전의 전장 확산 유도!
     team1.forEach((f, idx) => {
       if (team2.length > 0) f.aiTargetUid = team2[idx % team2.length].uid;
     });
@@ -517,7 +520,17 @@ const FightEngine = (() => {
     p2Fighter = matchConfig.mode === 'vs_2p' ? team2[0] : null;
   }
 
-  // [팀 난전] 조작 아군 즉시 태그 교대 (Tab 또는 1~5 숫자키 또는 상단 칩 클릭!)
+  // [핵심] 숫자 1~4 슬롯 선택 (발동은 하지 않고 장착 슬롯만 변경!)
+  function selectSlot(slotNum, targetFighter = null) {
+    const f = targetFighter || controlledFighter;
+    if (!f || slotNum < 1 || slotNum > 4) return;
+    if (f.selectedSlot !== slotNum) {
+      f.selectedSlot = slotNum;
+      SoundFX.uiClick();
+    }
+    renderSkillDockDOM();
+  }
+
   function swapControlledAlly(targetIdx = null) {
     if (!isBrawlMode() || roundPhase !== 'fight') return;
     const livingAllies = team1.filter(f => f.hp > 0 && f.state !== 'ko');
@@ -543,7 +556,7 @@ const FightEngine = (() => {
     SoundFX.chainLink();
     FightVFX.spawnGroundSlam(nextF.x, '#00e5ff', 95);
     showCallout(nextF, `🎮 ${nextF.name} 직접 조작!`);
-    refreshBottomMoveStrip();
+    renderSkillDockDOM();
     updateHudDOM();
   }
 
@@ -557,10 +570,7 @@ const FightEngine = (() => {
   }
 
   function nextArcadeOpponent() {
-    if (matchConfig.mode !== 'arcade') {
-      rematch();
-      return;
-    }
+    if (matchConfig.mode !== 'arcade') return rematch();
     matchConfig.arcadeStageIdx++;
     if (matchConfig.arcadeStageIdx >= matchConfig.arcadeLadder.length) {
       if (typeof AppController !== 'undefined') AppController.backToSelect();
@@ -644,13 +654,13 @@ const FightEngine = (() => {
     if (matchConfig.mode === 'training') {
       roundPhase = 'fight';
       phaseTimer = 0;
-      showCenterBanner('TRAINING START!', '무한 체력 · 무한 히트 게이지 · 콤보 연습 모드', 1.1);
+      showCenterBanner('TRAINING START!', '[1~4] 슬롯 선택 ➔ [Enter] 기술 발동 · [5] 초필살기 · [Space] 가드', 1.2);
     } else if (isBrawlMode()) {
       roundPhase = 'intro';
       phaseTimer = 1.45;
       showCenterBanner(
         `${team1.length} VS ${team2.length} BRAWL!`,
-        matchConfig.brawlControl === 'spectate' ? 'AI 올스타 전면 난전 관전!' : '전원 돌격! [Tab / 1~5] 아군 실시간 태그 가능',
+        matchConfig.brawlControl === 'spectate' ? 'AI 올스타 전면 난전 관전!' : '[1~4] 기술선택 + [Enter] 발동 · [5] 필살기 · [Tab] 아군교대',
         1.35
       );
       SoundFX.roundBell();
@@ -667,12 +677,13 @@ const FightEngine = (() => {
       SoundFX.announce(rTitle === 'FINAL ROUND' ? 'Final Round! Get Ready!' : `Round ${roundNum}!`);
     }
 
+    renderSkillDockDOM();
     syncStageDOM(0);
     updateHudDOM();
   }
 
   // ==========================================================================
-  // 4. 아레나 배경 SVG & 다중 파이터 DOM 셋업
+  // 4. 아레나 DOM & 5슬롯 스킬 독(Skill Dock) 렌더링
   // ==========================================================================
   function setupArenaDOM() {
     const hud1v1 = document.getElementById('hud-1v1-wrap');
@@ -687,7 +698,6 @@ const FightEngine = (() => {
     renderStageBackdropSVG(matchConfig.stageId);
     FightVFX.bindCanvas(matchConfig.stageId);
 
-    // 스테이지 위 모든 파이터(2~10인) DOM 동적 생성
     const stageLayer = document.getElementById('fighters-stage-layer');
     if (stageLayer) {
       stageLayer.innerHTML = allFighters.map(f => `
@@ -738,7 +748,7 @@ const FightEngine = (() => {
       renderBrawlRosterChips();
     }
 
-    refreshBottomMoveStrip();
+    renderSkillDockDOM();
   }
 
   function renderBrawlRosterChips() {
@@ -748,10 +758,10 @@ const FightEngine = (() => {
       c1.innerHTML = team1.map((f, idx) => `
         <div id="bchip-${f.uid}" class="brawl-chip blue ${controlledFighter === f ? 'controlled' : ''}"
              onclick="FightEngine.swapControlledAlly(${idx})"
-             title="[${idx + 1}] 클릭하여 ${f.name} 직접 조작">
+             title="클릭하여 ${f.name} 직접 조작 (단축키: Tab / Q)">
           <img src="${CharacterSprites.getPoseFileSrc(f.charId, 'idle')}" alt="${f.name}" />
           <div class="bchip-info">
-            <span class="bchip-name">${controlledFighter === f ? '★ ' : `[${idx + 1}] `}${f.name}</span>
+            <span class="bchip-name">${controlledFighter === f ? '★ ' : ''}${f.name}</span>
             <div class="bchip-hp"><div id="bchip-hp-${f.uid}" style="width:100%;"></div></div>
           </div>
         </div>
@@ -770,35 +780,76 @@ const FightEngine = (() => {
     }
   }
 
-  function refreshBottomMoveStrip() {
-    const shortTxt = (s, n = 9) => (s && s.length > n ? s.slice(0, n) + '…' : s);
-    const cmdStrip = document.getElementById('hud-movelist-strip');
-    if (!cmdStrip) return;
+  // 하단 5슬롯 스킬 바 렌더링 ([1~4] 슬롯 선택 + Enter 발동 | [5] 숫자 직접 발동 필살기)
+  function renderSkillDockDOM() {
+    const dock = document.getElementById('hud-skill-dock');
+    if (!dock) return;
 
-    if (matchConfig.mode === 'vs_2p') {
-      cmdStrip.innerHTML = `
-        <span class="cmd-item"><kbd class="k-cyan">1P</kbd> WASD · <kbd>J</kbd> 약 · <kbd>K</kbd> 강 · <kbd class="k-cyan">↓K</kbd> 어퍼 · <kbd>L</kbd> 잡기 · <kbd class="k-gold">U/I</kbd> 필살 · <kbd class="k-red">O</kbd> 레이지</span>
-        <span class="cmd-item"><kbd class="k-red">2P</kbd> 방향키 · <kbd>1</kbd> 약 · <kbd>2</kbd> 강/어퍼 · <kbd>3</kbd> 잡기 · <kbd class="k-gold">4/5</kbd> 필살 · <kbd class="k-red">6</kbd> 레이지</span>
+    if (isBrawlMode() && !controlledFighter) {
+      dock.innerHTML = `
+        <div class="spectate-dock-notice">
+          🍿 <strong>AI 자동 난전 관전 중</strong> — 상단 BLUE 팀 초상화를 클릭하거나 <kbd class="k-cyan">Tab</kbd> 키를 누르면 즉시 직접 난입할 수 있습니다!
+        </div>
       `;
-    } else if (isBrawlMode() && !controlledFighter) {
-      cmdStrip.innerHTML = `
-        <span class="cmd-item" style="color:#f5d76e;">🍿 <strong>AI 자동 난전 관전 중</strong> — 상단 BLUE 팀 칩 클릭 또는 <kbd class="k-cyan">Tab</kbd> <kbd class="k-cyan">1~5</kbd> 키로 즉시 직접 난입!</span>
-      `;
-    } else {
-      const cf = controlledFighter || team1[0];
-      if (!cf) return;
-      cmdStrip.innerHTML = `
-        ${isBrawlMode() ? `<span class="cmd-item"><kbd class="k-cyan">Tab</kbd> 태그교대</span>` : `<span class="cmd-item"><kbd>WASD</kbd> 이동·가드</span>`}
-        <span class="cmd-item"><kbd>J</kbd> 3단러시</span>
-        <span class="cmd-item"><kbd>↓J</kbd> 하단</span>
-        <span class="cmd-item"><kbd>K</kbd> 강타</span>
-        <span class="cmd-item"><kbd class="k-cyan">↓K</kbd> 어퍼</span>
-        <span class="cmd-item"><kbd>L</kbd> 잡기</span>
-        <span class="cmd-item"><kbd class="k-gold">U</kbd> ${shortTxt(cf.moves.sp1.name)}</span>
-        <span class="cmd-item"><kbd class="k-orange">I</kbd> ${shortTxt(cf.moves.sp2.name)}</span>
-        <span class="cmd-item"><kbd class="k-red">O</kbd> 레이지아츠</span>
-      `;
+      return;
     }
+
+    const cf = controlledFighter || team1[0];
+    if (!cf) return;
+
+    const shortTxt = (s, n = 11) => (s && s.length > n ? s.slice(0, n) + '…' : s);
+    const slotDefs = [
+      { num: 1, title: '속공 3연타', sub: '무쿨 · 숙이면 하단', move: cf.moves.jab3 },
+      { num: 2, title: '라이징 어퍼', sub: '띄우기 · 가드파쇄', move: cf.moves.launcher },
+      { num: 3, title: shortTxt(cf.moves.sp1.name), sub: '고유기 · 0.4s', move: cf.moves.sp1 },
+      { num: 4, title: shortTxt(cf.moves.sp2.name), sub: '슈퍼아머 · 0.55s', move: cf.moves.sp2 }
+    ];
+
+    const slotsHtml = slotDefs.map(sd => {
+      const isSel = cf.selectedSlot === sd.num;
+      return `
+        <div id="skill-slot-card-${sd.num}"
+             class="skill-slot-card ${isSel ? 'selected' : ''}"
+             onclick="FightEngine.selectSlot(${sd.num})"
+             title="[${sd.num}]번 키로 슬롯 선택 후 [Enter] 키로 발동!">
+          <div class="slot-cd-fill" id="slot-cd-${sd.num}" style="height:0%;"></div>
+          <div class="slot-card-top">
+            <kbd class="slot-key">${sd.num}</kbd>
+            <span class="slot-enter-tag">${isSel ? 'ENTER 발동' : '선택'}</span>
+          </div>
+          <div class="slot-card-title">${sd.title}</div>
+          <div class="slot-card-sub">${sd.sub}</div>
+        </div>
+      `;
+    }).join('');
+
+    const ultReady = canUseRageArt(cf);
+    const ultHtml = `
+      <div id="skill-slot-card-5"
+           class="skill-slot-card ult-slot ${ultReady ? 'ult-ready' : ''}"
+           onclick="FightEngine.pressVirtualAction('ult')"
+           title="초필살기는 [5]번 숫자키를 눌렀을 때만 즉시 발동됩니다!">
+        <div class="slot-card-top">
+          <kbd class="slot-key ult-key">5</kbd>
+          <span class="slot-enter-tag ult-tag">${ultReady ? '🔥 숫자 5 즉시발동!' : '게이지 100% / RAGE'}</span>
+        </div>
+        <div class="slot-card-title">🔥 ${shortTxt(cf.moves.rage.name, 12)}</div>
+        <div class="slot-card-sub">숫자 [5] 전용 초필살기</div>
+      </div>
+    `;
+
+    dock.innerHTML = `
+      <div class="dock-Quick-hint">
+        <span><kbd>WASD</kbd><kbd>방향키</kbd> 이동·점프·숙이기</span>
+        <span><kbd class="k-cyan">Space</kbd> 가드</span>
+        ${isBrawlMode() ? `<span><kbd class="k-cyan">Tab</kbd> 교대</span>` : ''}
+      </div>
+      <div class="dock-slots-row">
+        ${slotsHtml}
+        <div class="dock-divider"></div>
+        ${ultHtml}
+      </div>
+    `;
   }
 
   function renderStageBackdropSVG(bgClass) {
@@ -863,7 +914,12 @@ const FightEngine = (() => {
   }
 
   // ==========================================================================
-  // 5. 키보드 & 온스크린 아케이드 패드 입력 처리
+  // 5. 키보드 입력 바인딩
+  // · 이동/점프/숙이기: WASD + 화살표키
+  // · 가드: Space
+  // · 슬롯 선택: 1, 2, 3, 4 (선택된 슬롯 유지)
+  // · 선택 기술 발동: Enter
+  // · 필살기 즉시 발동: 5 (숫자 5를 눌렀을 때만 발동!)
   // ==========================================================================
   function bindKeyboardEvents() {
     if (inputsBound) return;
@@ -882,37 +938,45 @@ const FightEngine = (() => {
       const now = performance.now();
       const twoPlayer = matchConfig.mode === 'vs_2p';
 
-      // [팀 난전] Tab 또는 1~5 숫자키로 아군 캐릭터 실시간 태그 교대!
+      // [팀 난전] Tab 또는 Q 키로 아군 조작 캐릭터 태그 교대!
       if (isBrawlMode() && !isRepeat && roundPhase === 'fight') {
-        if (e.code === 'Tab') {
+        if (e.code === 'Tab' || e.code === 'KeyQ') {
           e.preventDefault();
           swapControlledAlly();
           return;
-        }
-        if (/^Digit[1-5]$/.test(e.code)) {
-          const idx = parseInt(e.code.replace('Digit', ''), 10) - 1;
-          if (idx < team1.length) {
-            e.preventDefault();
-            swapControlledAlly(idx);
-            return;
-          }
         }
       }
 
       const gameKeys = [
         'KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space', 'ShiftLeft', 'ShiftRight',
         'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
-        'KeyJ', 'KeyK', 'KeyL', 'KeyU', 'KeyI', 'KeyO',
-        'KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB', 'KeyG',
-        'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad6',
-        'Comma', 'Period', 'Slash', 'Semicolon', 'Quote', 'Enter'
+        'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5',
+        'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4', 'Numpad5', 'Numpad0',
+        'Enter', 'NumpadEnter', 'KeyF'
       ];
       if (gameKeys.includes(e.code)) e.preventDefault();
       keysDown.add(e.code);
 
-      if (isRepeat || roundPhase !== 'fight') return;
+      if (isRepeat) return;
 
+      // 라운드 시작 전에도 1~4번 슬롯 미리 선택 가능!
       const p1 = controlledFighter;
+      if (p1) {
+        if (e.code === 'Digit1' || (!twoPlayer && e.code === 'Numpad1')) return selectSlot(1, p1);
+        if (e.code === 'Digit2' || (!twoPlayer && e.code === 'Numpad2')) return selectSlot(2, p1);
+        if (e.code === 'Digit3' || (!twoPlayer && e.code === 'Numpad3')) return selectSlot(3, p1);
+        if (e.code === 'Digit4' || (!twoPlayer && e.code === 'Numpad4')) return selectSlot(4, p1);
+      }
+      if (twoPlayer && p2Fighter) {
+        if (e.code === 'Numpad1') return selectSlot(1, p2Fighter);
+        if (e.code === 'Numpad2') return selectSlot(2, p2Fighter);
+        if (e.code === 'Numpad3') return selectSlot(3, p2Fighter);
+        if (e.code === 'Numpad4') return selectSlot(4, p2Fighter);
+      }
+
+      if (roundPhase !== 'fight') return;
+
+      // --- 1P 대시 / Enter 선택 슬롯 발동 / 5번 필살기 즉시 발동 ---
       if (p1 && p1.hp > 0) {
         if (e.code === 'KeyD' || (!twoPlayer && e.code === 'ArrowRight')) {
           if (now - tapTracker.p1Right < 240) triggerDash(p1, 1);
@@ -925,14 +989,17 @@ const FightEngine = (() => {
           triggerDash(p1, moveDir);
         }
 
-        if (e.code === 'KeyJ' || (!twoPlayer && e.code === 'KeyZ')) handleAttackButton(p1, 'light', 1);
-        else if (e.code === 'KeyK' || (!twoPlayer && e.code === 'KeyX')) handleAttackButton(p1, 'heavy', 1);
-        else if (e.code === 'KeyL' || (!twoPlayer && e.code === 'KeyG')) handleAttackButton(p1, 'throw', 1);
-        else if (e.code === 'KeyU' || (!twoPlayer && e.code === 'KeyC')) handleAttackButton(p1, 'sp1', 1);
-        else if (e.code === 'KeyI' || (!twoPlayer && e.code === 'KeyV')) handleAttackButton(p1, 'sp2', 1);
-        else if (e.code === 'KeyO' || (!twoPlayer && (e.code === 'KeyB' || e.code === 'Enter'))) handleAttackButton(p1, 'rage', 1);
+        // [Enter] 현재 선택된 슬롯(1~4) 기술만 발동!
+        if (e.code === 'Enter' || (!twoPlayer && e.code === 'NumpadEnter') || (twoPlayer && e.code === 'KeyF')) {
+          executeSelectedSlotSkill(p1, 1);
+        }
+        // [5] 초필살기 전용 즉시 발동! (선택된 1~4 슬롯은 변경하지 않음!)
+        else if (e.code === 'Digit5' || (!twoPlayer && e.code === 'Numpad5')) {
+          executeDirectUltimate(p1);
+        }
       }
 
+      // --- 2P 조작 (2인 로컬 대전 모드) ---
       if (twoPlayer && p2Fighter && p2Fighter.hp > 0) {
         if (e.code === 'ArrowRight') {
           if (now - tapTracker.p2Right < 240) triggerDash(p2Fighter, 1);
@@ -941,12 +1008,11 @@ const FightEngine = (() => {
           if (now - tapTracker.p2Left < 240) triggerDash(p2Fighter, -1);
           tapTracker.p2Left = now;
         }
-        if (e.code === 'Numpad1' || e.code === 'Comma') handleAttackButton(p2Fighter, 'light', 2);
-        else if (e.code === 'Numpad2' || e.code === 'Period') handleAttackButton(p2Fighter, 'heavy', 2);
-        else if (e.code === 'Numpad3' || e.code === 'Slash') handleAttackButton(p2Fighter, 'throw', 2);
-        else if (e.code === 'Numpad4' || e.code === 'Semicolon') handleAttackButton(p2Fighter, 'sp1', 2);
-        else if (e.code === 'Numpad5' || e.code === 'Quote') handleAttackButton(p2Fighter, 'sp2', 2);
-        else if (e.code === 'Numpad6' || e.code === 'Enter') handleAttackButton(p2Fighter, 'rage', 2);
+        if (e.code === 'NumpadEnter') {
+          executeSelectedSlotSkill(p2Fighter, 2);
+        } else if (e.code === 'Numpad5') {
+          executeDirectUltimate(p2Fighter);
+        }
       }
     });
 
@@ -972,53 +1038,62 @@ const FightEngine = (() => {
   }
   function isHoldingGuardBtn(inputSlot) {
     if (inputSlot === 1) return keysDown.has('Space');
-    return matchConfig.mode === 'vs_2p' && keysDown.has('ShiftRight');
+    return matchConfig.mode === 'vs_2p' && (keysDown.has('ShiftRight') || keysDown.has('Numpad0'));
   }
 
-  function pressVirtualAction(btnKind) {
+  function pressVirtualAction(kind) {
     if (!running || paused || roundPhase !== 'fight') return;
     if (!controlledFighter && isBrawlMode()) swapControlledAlly();
     const p1 = controlledFighter;
     if (!p1 || p1.hp <= 0) return;
 
-    if (btnKind === 'dash') triggerDash(p1, p1.facing);
-    else if (btnKind === 'launcher') queueOrExecuteMove(p1, 'launcher');
-    else if (btnKind === 'low') queueOrExecuteMove(p1, 'low');
-    else handleAttackButton(p1, btnKind, 1);
+    if (kind === 'dash') triggerDash(p1, p1.facing);
+    else if (kind === 'enter') executeSelectedSlotSkill(p1, 1);
+    else if (kind === 'ult') executeDirectUltimate(p1);
   }
 
-  function handleAttackButton(f, btn, inputSlot = 1) {
+  // [핵심] Enter 키 입력 시 현재 선택된 슬롯(1~4)의 기술만 실행!
+  function executeSelectedSlotSkill(f, inputSlot = 1) {
     if (!f || f.hp <= 0 || roundPhase !== 'fight') return;
 
-    if (f.state === 'grabbed' && btn === 'throw' && f.throwEscapeWindow > 0) {
-      performThrowEscape(f);
-      return;
-    }
-
-    const down = f.isCpu ? false : isHoldingDown(inputSlot);
-    const forward = f.isCpu ? false : (f.facing === 1 ? isHoldingRight(inputSlot) : isHoldingLeft(inputSlot));
+    const slotNum = f.selectedSlot || 1;
     const airborne = f.y < GROUND_Y - 4;
+    const down = f.isCpu ? false : isHoldingDown(inputSlot);
 
-    if (btn === 'rage') return queueOrExecuteMove(f, 'rage');
-    if (btn === 'sp1')  return queueOrExecuteMove(f, 'sp1');
-    if (btn === 'sp2')  return queueOrExecuteMove(f, 'sp2');
-    if (btn === 'throw') {
-      if (!airborne) queueOrExecuteMove(f, 'throw_grab');
+    if (airborne) {
+      queueOrExecuteMove(f, 'air_atk');
       return;
     }
 
-    if (airborne) return queueOrExecuteMove(f, 'air_atk');
-    if (f.state === 'dash_f') return queueOrExecuteMove(f, btn === 'heavy' ? 'launcher' : 'dash_atk');
-
-    if (btn === 'light') {
-      if (down) queueOrExecuteMove(f, 'low');
-      else if (f.state === 'attack' && f.curMove && f.curMove.id === 'jab1') queueOrExecuteMove(f, 'jab2');
-      else if (f.state === 'attack' && f.curMove && f.curMove.id === 'jab2') queueOrExecuteMove(f, 'jab3');
-      else queueOrExecuteMove(f, 'jab1');
-    } else if (btn === 'heavy') {
-      if (down || forward) queueOrExecuteMove(f, 'launcher');
-      else queueOrExecuteMove(f, 'heavy');
+    if (slotNum === 1) {
+      if (down) {
+        queueOrExecuteMove(f, 'low');
+      } else if (f.state === 'dash_f') {
+        queueOrExecuteMove(f, 'dash_atk');
+      } else if (f.state === 'attack' && f.curMove && f.curMove.id === 'jab1') {
+        queueOrExecuteMove(f, 'jab2');
+      } else if (f.state === 'attack' && f.curMove && f.curMove.id === 'jab2') {
+        queueOrExecuteMove(f, 'jab3');
+      } else {
+        queueOrExecuteMove(f, 'jab1');
+      }
+    } else if (slotNum === 2) {
+      queueOrExecuteMove(f, 'launcher');
+    } else if (slotNum === 3) {
+      queueOrExecuteMove(f, 'sp1');
+    } else if (slotNum === 4) {
+      queueOrExecuteMove(f, 'sp2');
     }
+  }
+
+  // [핵심] 숫자 5 키 입력 시에만 초필살기 즉시 발동! (선택 슬롯 1~4 유지)
+  function executeDirectUltimate(f) {
+    if (!f || f.hp <= 0 || roundPhase !== 'fight') return;
+    if (!canUseRageArt(f)) {
+      if (!f.isCpu) showCallout(f, `필살 게이지 ${Math.floor(f.meter)}%`);
+      return;
+    }
+    queueOrExecuteMove(f, 'rage');
   }
 
   function triggerDash(f, worldDir) {
@@ -1028,15 +1103,15 @@ const FightEngine = (() => {
     const isForward = (worldDir === f.facing);
     if (isForward) {
       f.state = 'dash_f';
-      f.stateTime = 0.24;
-      f.vx = f.facing * (590 + f.prof.stats[1] * 45);
+      f.stateTime = 0.23;
+      f.vx = f.facing * (560 + f.prof.stats[1] * 40);
       if (canPlaySfxFor(f, null)) SoundFX.evadeWhoosh();
       FightVFX.spawnDust(f.x, GROUND_Y + f.depthY, f.facing, 6);
     } else {
       f.state = 'dash_b';
-      f.stateTime = 0.21;
-      f.invulnTimer = 0.11;
-      f.vx = -f.facing * (540 + f.prof.stats[1] * 35);
+      f.stateTime = 0.20;
+      f.invulnTimer = 0.10;
+      f.vx = -f.facing * (520 + f.prof.stats[1] * 32);
       if (canPlaySfxFor(f, null)) SoundFX.evadeWhoosh();
       FightVFX.spawnDust(f.x, GROUND_Y + f.depthY, -f.facing, 5, 'rgba(0, 229, 255, 0.48)');
     }
@@ -1049,12 +1124,24 @@ const FightEngine = (() => {
     return false;
   }
 
+  function isMoveOffCooldown(f, move) {
+    if (!move || !move.slotNum || move.slotNum > 4) return true;
+    return (f.slotCooldowns[move.slotNum] || 0) <= 0.01;
+  }
+
   function queueOrExecuteMove(f, moveId) {
     const move = f.moves[moveId];
     if (!move || f.hp <= 0) return;
 
     if (moveId === 'rage' && !canUseRageArt(f)) return;
-    if (move.meterCost && f.meter < move.meterCost) return;
+    if (!isMoveOffCooldown(f, move)) {
+      // 남은 쿨타임이 0.14초 이내면 선입력 버퍼에 넣어 모션 직후 부드럽게 발동!
+      if ((f.slotCooldowns[move.slotNum] || 0) <= 0.14) {
+        f.bufferedMoveId = moveId;
+        f.bufferTimer = 0.16;
+      }
+      return;
+    }
 
     const neutralReady = ['idle', 'walk_f', 'walk_b', 'crouch', 'dash_f', 'jump'].includes(f.state);
     if (neutralReady) {
@@ -1082,10 +1169,10 @@ const FightEngine = (() => {
 
     if (move.isRageArt) {
       if (f.inRage && !f.rageArtUsed) f.rageArtUsed = true;
-      else f.meter = Math.max(0, f.meter - 100);
+      else f.meter = 0;
       triggerRageCutIn(f, move);
-    } else if (move.meterCost) {
-      f.meter = Math.max(0, f.meter - move.meterCost);
+    } else if (move.cooldown && move.slotNum) {
+      f.slotCooldowns[move.slotNum] = move.cooldown;
     }
 
     f.state = 'attack';
@@ -1104,15 +1191,15 @@ const FightEngine = (() => {
 
     if (canPlaySfxFor(f, null)) SoundFX.whiff();
     if (move.powerCrush) {
-      f.armorFlashTimer = move.startup + move.active;
+      f.armorFlashTimer = move.startup + move.active * 0.85;
     }
-    if (move.lungeVx > 260) {
+    if (move.lungeVx > 250) {
       FightVFX.spawnDust(f.x, GROUND_Y + f.depthY, f.facing, 5);
     }
   }
 
   function triggerRageCutIn(f, move) {
-    rageFreezeTimer = isBrawlMode() ? 0.36 : 0.52;
+    rageFreezeTimer = isBrawlMode() ? 0.34 : 0.48;
     SoundFX.egoAwaken();
     SoundFX.announce('Rage Art!');
 
@@ -1125,16 +1212,16 @@ const FightEngine = (() => {
     if (overlay && img && charLbl && moveLbl && quoteLbl) {
       img.src = CharacterSprites.getPoseFileSrc(f.charId, 'ego');
       img.classList.toggle('flip-x', f.facing === -1);
-      charLbl.textContent = `${f.fullName} · RAGE ART`;
+      charLbl.textContent = `${f.fullName} · ULTIMATE [5]`;
       moveLbl.textContent = move.name;
       quoteLbl.textContent = `“${move.quote}”`;
       overlay.classList.add('active');
-      setTimeout(() => overlay.classList.remove('active'), isBrawlMode() ? 460 : 620);
+      setTimeout(() => overlay.classList.remove('active'), isBrawlMode() ? 440 : 600);
     }
   }
 
   // ==========================================================================
-  // 6. 메인 60fps 게임 루프 (1v1 & 최대 10인 팀 난전 동시 지원)
+  // 6. 메인 60fps 게임 루프
   // ==========================================================================
   function loop(ts) {
     if (!running) {
@@ -1217,12 +1304,11 @@ const FightEngine = (() => {
     }
     const alive1 = team1.filter(f => f.hp > 0);
     const alive2 = team2.filter(f => f.hp > 0);
-    // 마지막 1 vs 1 생존자가 양쪽 모두 빈사 상태에서 동시 공격할 때 철권 슬로우 모션 발동!
     if (alive1.length === 1 && alive2.length === 1) {
       const a = alive1[0];
       const b = alive2[0];
-      const bothLow = a.hp <= a.maxHp * 0.22 && b.hp <= b.maxHp * 0.22;
-      const closeDist = Math.abs(a.x - b.x) < 310;
+      const bothLow = a.hp <= a.maxHp * 0.20 && b.hp <= b.maxHp * 0.20;
+      const closeDist = Math.abs(a.x - b.x) < 300;
       const bothSwinging = a.state === 'attack' && b.state === 'attack';
       const targetSlow = (bothLow && closeDist && bothSwinging) ? 0.28 : 1.0;
       slowMoFactor += (targetSlow - slowMoFactor) * Math.min(1, 14 * rawDt);
@@ -1246,25 +1332,19 @@ const FightEngine = (() => {
     } else if (roundPhase === 'fight') {
       if (matchConfig.mode !== 'training') {
         roundTimer = Math.max(0, roundTimer - dt);
-        if (roundTimer <= 0) {
-          triggerRoundEndByTime();
-        }
+        if (roundTimer <= 0) triggerRoundEndByTime();
       }
     } else if (roundPhase === 'ko_freeze') {
       phaseTimer -= rawDt;
-      if (phaseTimer <= 0) {
-        finalizeRoundWinner();
-      }
+      if (phaseTimer <= 0) finalizeRoundWinner();
     } else if (roundPhase === 'round_over') {
       phaseTimer -= rawDt;
-      if (phaseTimer <= 0) {
-        beginRound(roundNum + 1);
-      }
+      if (phaseTimer <= 0) beginRound(roundNum + 1);
     }
   }
 
   // ==========================================================================
-  // 7. 파이터 물리 · 상태머신 업데이트
+  // 7. 파이터 물리 · 가드(Space) · 이동(WASD/방향키) 업데이트
   // ==========================================================================
   function updateFighter(f, dt) {
     const opp = findNearestEnemy(f);
@@ -1273,6 +1353,14 @@ const FightEngine = (() => {
     if (f.invulnTimer > 0) f.invulnTimer = Math.max(0, f.invulnTimer - dt);
     if (f.armorFlashTimer > 0) f.armorFlashTimer = Math.max(0, f.armorFlashTimer - dt);
     if (f.hitFlashTimer > 0) f.hitFlashTimer = Math.max(0, f.hitFlashTimer - dt);
+
+    // 슬롯 쿨타임 감소
+    for (let s = 1; s <= 4; s++) {
+      if (f.slotCooldowns[s] > 0) {
+        f.slotCooldowns[s] = Math.max(0, f.slotCooldowns[s] - dt);
+      }
+    }
+
     if (f.comboDisplayTimer > 0) {
       f.comboDisplayTimer = Math.max(0, f.comboDisplayTimer - dt);
       if (f.comboDisplayTimer <= 0) {
@@ -1288,28 +1376,34 @@ const FightEngine = (() => {
 
     if (f.state !== 'hitstun' && f.state !== 'air_hit' && f.state !== 'wall_splat') {
       f.trailHp += (f.hp - f.trailHp) * Math.min(1, 5.5 * dt);
+      f.continuousTakenDmg = Math.max(0, f.continuousTakenDmg - 240 * dt);
     }
     if (!f.guarding && f.state !== 'blockstun') {
-      f.guardHp = Math.min(100, f.guardHp + 14 * dt);
+      f.guardHp = Math.min(f.maxGuard, f.guardHp + 16 * dt);
     }
     if (f.isRaidBoss && f.hp > 0 && roundPhase === 'fight') {
-      f.meter = Math.min(100, f.meter + 5 * dt);
+      f.meter = Math.min(100, f.meter + 4 * dt);
     }
 
-    if (!f.inRage && f.hp > 0 && f.hp <= f.maxHp * 0.35) {
+    // 체력 30% 이하 RAGE 위기 각성! (공격력 +12% & 5번 초필살기 1회 해방!)
+    if (!f.inRage && f.hp > 0 && f.hp <= f.maxHp * 0.30) {
       f.inRage = true;
-      showCallout(f, '🔥 RAGE!');
+      showCallout(f, '🔥 RAGE 각성! [5] 필살기 해방');
       if (canPlaySfxFor(f, null)) SoundFX.resonanceChime(true);
       FightVFX.spawnGroundSlam(f.x, '#ff2a36', 85);
     }
 
+    // 선입력 버퍼 실행
     if (f.bufferedMoveId && roundPhase === 'fight' && f.hp > 0) {
       const bId = f.bufferedMoveId;
-      if (['idle', 'walk_f', 'walk_b', 'crouch'].includes(f.state)) {
-        queueOrExecuteMove(f, bId);
-      } else if (f.state === 'attack' && f.curMove && f.curMove.cancels && f.curMove.cancels.includes(bId)) {
-        if (f.hitTargets.size > 0 || f.moveTime >= f.curMove.startup + f.curMove.active * 0.65) {
+      const bMove = f.moves[bId];
+      if (isMoveOffCooldown(f, bMove)) {
+        if (['idle', 'walk_f', 'walk_b', 'crouch'].includes(f.state)) {
           queueOrExecuteMove(f, bId);
+        } else if (f.state === 'attack' && f.curMove && f.curMove.cancels && f.curMove.cancels.includes(bId)) {
+          if (f.hitTargets.size > 0 || f.moveTime >= f.curMove.startup + f.curMove.active * 0.65) {
+            queueOrExecuteMove(f, bId);
+          }
         }
       }
     }
@@ -1331,29 +1425,6 @@ const FightEngine = (() => {
       return;
     }
 
-    if (f.state === 'grabbed') {
-      f.throwEscapeWindow = Math.max(0, f.throwEscapeWindow - dt);
-      const grabber = f.grabTarget;
-      if (!grabber || grabber.hp <= 0 || grabber.state !== 'throwing') {
-        f.state = 'idle';
-        f.grabTarget = null;
-        return;
-      }
-      if (f.stateTime >= 0.32) {
-        executeThrowSlam(grabber, f);
-      }
-      return;
-    }
-
-    if (f.state === 'throwing') {
-      if (f.stateTime >= 0.56) {
-        f.state = 'idle';
-        f.stateTime = 0;
-        f.grabTarget = null;
-      }
-      return;
-    }
-
     if (f.state === 'rage_cinematic') {
       updateRageCinematicBarrage(f, f.rageTarget || opp, dt);
       return;
@@ -1369,9 +1440,9 @@ const FightEngine = (() => {
           f.x = clamp(f.x, WALL_LEFT, WALL_RIGHT);
           f.vx = 0;
           f.state = 'wall_splat';
-          f.stunTimer = 0.65;
+          f.stunTimer = 0.56;
           f.wallSplatUsedInCombo = true;
-          cam.shake = Math.max(cam.shake, 14);
+          cam.shake = Math.max(cam.shake, 13);
           if (canPlaySfxFor(null, f)) SoundFX.wallSplat();
           FightVFX.spawnWallSplat(f.x <= WALL_LEFT + 10 ? 52 : STAGE_W - 52, f.y - 95);
           if (opp) showCallout(opp, '💥 WALL SPLAT!');
@@ -1391,7 +1462,7 @@ const FightEngine = (() => {
     }
 
     if (f.state === 'air_hit') {
-      const gravScale = 1 + Math.min(0.85, f.juggleCount * 0.11);
+      const gravScale = 1 + Math.min(0.95, f.juggleCount * 0.14);
       f.vy += GRAVITY * gravScale * dt;
       f.x += f.vx * dt;
       f.y += f.vy * dt;
@@ -1399,9 +1470,9 @@ const FightEngine = (() => {
       if ((f.x <= WALL_LEFT || f.x >= WALL_RIGHT) && Math.abs(f.vx) > 160 && !f.wallSplatUsedInCombo) {
         f.x = clamp(f.x, WALL_LEFT, WALL_RIGHT);
         f.vx = -f.vx * 0.25;
-        f.vy = -340;
+        f.vy = -320;
         f.wallSplatUsedInCombo = true;
-        cam.shake = Math.max(cam.shake, 12);
+        cam.shake = Math.max(cam.shake, 11);
         if (canPlaySfxFor(null, f)) SoundFX.wallSplat();
         FightVFX.spawnWallSplat(f.x <= WALL_LEFT + 10 ? 52 : STAGE_W - 52, f.y - 75);
       }
@@ -1413,7 +1484,7 @@ const FightEngine = (() => {
         if (f.boundPending) {
           f.boundPending = false;
           f.boundUsedInCombo = true;
-          f.vy = -660;
+          f.vy = -640;
           f.vx *= 0.35;
           cam.shake = Math.max(cam.shake, 12);
           if (canPlaySfxFor(null, f)) SoundFX.heavyHit();
@@ -1433,11 +1504,12 @@ const FightEngine = (() => {
     if (f.state === 'knockdown') {
       f.vx *= Math.pow(0.002, dt);
       f.x = clamp(f.x + f.vx * dt, WALL_LEFT, WALL_RIGHT);
-      if (f.stateTime >= 0.44) {
+      if (f.stateTime >= 0.42) {
         f.state = 'idle';
         f.stateTime = 0;
-        f.invulnTimer = 0.24;
+        f.invulnTimer = 0.28; // 기상 무적 보호
         f.juggleCount = 0;
+        f.continuousTakenDmg = 0;
         f.boundUsedInCombo = false;
         f.wallSplatUsedInCombo = false;
       }
@@ -1527,7 +1599,7 @@ const FightEngine = (() => {
       if (isHoldingRight(inputSlot)) moveX += 1;
       jumpReq = isHoldingUp(inputSlot);
       crouchReq = isHoldingDown(inputSlot);
-      guardBtn = isHoldingGuardBtn(inputSlot);
+      guardBtn = isHoldingGuardBtn(inputSlot); // 스페이스바 가드!
     } else {
       moveX = f.aiMoveX || 0;
       jumpReq = Boolean(f.aiJumpReq);
@@ -1536,25 +1608,26 @@ const FightEngine = (() => {
       f.aiJumpReq = false;
     }
 
-    const walkSpeed = 305 + f.prof.stats[1] * 28;
-    const holdingBack = (moveX !== 0 && Math.sign(moveX) === -f.facing);
-    const enemyAttacking = (f.team === 1 ? team2 : team1).some(e => e.hp > 0 && e.state === 'attack' && Math.abs(e.x - f.x) < 340);
-    const oppThreat = enemyAttacking || projectiles.some(p => p.team !== f.team);
-
+    const walkSpeed = 295 + f.prof.stats[1] * 28;
     const prevGuarding = f.guarding;
     f.crouching = crouchReq;
-    f.guarding = guardBtn || (holdingBack && oppThreat);
+    f.guarding = guardBtn;
     if (f.guarding && !prevGuarding) {
-      f.justGuardWindow = 0.10;
+      f.justGuardWindow = 0.11; // 스페이스바 저스트 가드 타이밍!
     }
 
-    if (jumpReq && !guardBtn) {
+    if (guardBtn) {
+      f.state = crouchReq ? 'crouch' : 'idle';
+      f.vx = 0;
+      return;
+    }
+
+    if (jumpReq) {
       f.state = 'jump';
       f.y = GROUND_Y - 3;
       f.vy = -1020;
       f.vx = moveX * (walkSpeed * 1.05);
       f.crouching = false;
-      f.guarding = false;
       FightVFX.spawnDust(f.x, GROUND_Y + f.depthY, f.facing, 4);
       return;
     }
@@ -1562,13 +1635,10 @@ const FightEngine = (() => {
     if (crouchReq) {
       f.state = 'crouch';
       f.vx = 0;
-    } else if (guardBtn) {
-      f.state = 'idle';
-      f.vx = 0;
     } else if (moveX !== 0) {
       const forward = Math.sign(moveX) === f.facing;
       f.state = forward ? 'walk_f' : 'walk_b';
-      f.vx = moveX * (forward ? walkSpeed : walkSpeed * 0.84);
+      f.vx = moveX * (forward ? walkSpeed : walkSpeed * 0.88);
       f.x = clamp(f.x + f.vx * dt, WALL_LEFT, WALL_RIGHT);
     } else {
       f.state = 'idle';
@@ -1578,7 +1648,6 @@ const FightEngine = (() => {
 
   function resolveAllPushboxes(dt) {
     if (!isBrawlMode()) {
-      // 1v1 정통 푸시박스
       const a = team1[0];
       const b = team2[0];
       if (!a || !b || a.state === 'ko' || b.state === 'ko') return;
@@ -1594,13 +1663,12 @@ const FightEngine = (() => {
       return;
     }
 
-    // 다대다 난전: 캐릭터들이 완전히 한 점에 겹치지 않도록 부드러운 탄성 분리! (대시/공중은 자유 통과)
     const living = allFighters.filter(f => f.hp > 0 && f.state !== 'ko' && f.y >= GROUND_Y - 20);
     for (let i = 0; i < living.length; i++) {
       for (let j = i + 1; j < living.length; j++) {
         const a = living[i];
         const b = living[j];
-        if (a.state === 'dash_f' || b.state === 'dash_f' || a.state === 'grabbed' || b.state === 'grabbed') continue;
+        if (a.state === 'dash_f' || b.state === 'dash_f') continue;
         const sameTeam = a.team === b.team;
         const minGap = sameTeam ? 54 : 74;
         const dx = b.x - a.x;
@@ -1616,7 +1684,7 @@ const FightEngine = (() => {
   }
 
   // ==========================================================================
-  // 8. 다중 타겟 히트박스 충돌 · 광역 빔/장풍 · 잡기 · 레이지 아츠 처리
+  // 8. 투사체 · 히트박스 충돌 · 밸런스 패치된 피격/낙법 판정
   // ==========================================================================
   function fireSpecialEffectOrProjectile(attacker, primaryDef, move) {
     const sk = move.specialKind;
@@ -1626,14 +1694,15 @@ const FightEngine = (() => {
 
     if (sk === 'beam_rainbow') {
       if (canPlaySfxFor(attacker, null)) SoundFX.laserBeam();
-      const endX = attacker.facing === 1 ? STAGE_W : 0;
+      const endX = clamp(attacker.x + attacker.facing * move.range, 0, STAGE_W);
       FightVFX.spawnSignatureBeam(startX, startY - 12, endX, startY - 12, 'rainbow');
     } else if (sk === 'sky_wings') {
+      // 밸런스 패치: 무조건 상대 머리 위 자동추적 대신 전방 고정 구역(285px) 낙하로 회피/대응 가능!
       if (canPlaySfxFor(attacker, null)) SoundFX.laserBeam();
-      const strikeX = primaryDef ? primaryDef.x : (attacker.x + attacker.facing * 320);
+      const strikeX = clamp(attacker.x + attacker.facing * 285, WALL_LEFT, WALL_RIGHT);
       FightVFX.spawnSignatureBeam(strikeX, 0, strikeX, GROUND_Y, 'sky_wings');
       enemies.forEach(en => {
-        if (Math.abs(en.x - strikeX) < 125 && en.invulnTimer <= 0 && en.state !== 'knockdown') {
+        if (Math.abs(en.x - strikeX) < 110 && en.invulnTimer <= 0 && en.state !== 'knockdown') {
           attacker.hitTargets.add(en.uid);
           applyHitOrBlock(attacker, en, move, true);
         }
@@ -1649,7 +1718,7 @@ const FightEngine = (() => {
         move,
         x: startX,
         y: startY,
-        vx: attacker.facing * (sk === 'proj_cannon' ? 880 : 760),
+        vx: attacker.facing * (sk === 'proj_cannon' ? 820 : 730),
         visual: visualMap[sk],
         color: attacker.prof.accent,
         pierceLeft: isBrawlMode() && (sk === 'proj_cannon' || sk === 'proj_wing') ? 2 : 1,
@@ -1657,9 +1726,9 @@ const FightEngine = (() => {
       });
     } else if (sk === 'cannon_rush') {
       if (canPlaySfxFor(attacker, null)) SoundFX.cannonBlast();
-      FightVFX.spawnSignatureBeam(startX, startY, startX + attacker.facing * 230, startY, 'cannon');
+      FightVFX.spawnSignatureBeam(startX, startY, startX + attacker.facing * 220, startY, 'cannon');
     } else if (sk === 'rush_claws') {
-      FightVFX.spawnSignatureBeam(startX, startY, startX + attacker.facing * 185, startY, 'claws');
+      FightVFX.spawnSignatureBeam(startX, startY, startX + attacker.facing * 180, startY, 'claws');
     }
   }
 
@@ -1673,7 +1742,6 @@ const FightEngine = (() => {
         continue;
       }
 
-      // 적 투사체와 충돌 시 상쇄!
       let clashed = false;
       for (let j = i - 1; j >= 0; j--) {
         const other = projectiles[j];
@@ -1695,7 +1763,7 @@ const FightEngine = (() => {
         if (pr.hitSet.has(target.uid)) continue;
 
         const hurtTop = target.y - (target.crouching ? 115 : 175);
-        if (Math.abs(pr.x - target.x) < 62 && pr.y >= hurtTop && pr.y <= target.y) {
+        if (Math.abs(pr.x - target.x) < 60 && pr.y >= hurtTop && pr.y <= target.y) {
           pr.hitSet.add(target.uid);
           pr.pierceLeft--;
           applyHitOrBlock(pr.attacker, target, pr.move, true);
@@ -1736,8 +1804,7 @@ const FightEngine = (() => {
     if (!hb) return;
     const m = attacker.curMove;
 
-    // 잡기 및 레이지 아츠는 단일 타겟만 포착
-    if ((m.isThrow || m.isRageArt) && attacker.hitTargets.size > 0) return;
+    if (m.isRageArt && attacker.hitTargets.size > 0) return;
 
     const enemies = attacker.team === 1 ? team2 : team1;
     for (const defender of enemies) {
@@ -1749,35 +1816,21 @@ const FightEngine = (() => {
       if (boxesOverlap(hb, db)) {
         attacker.hitTargets.add(defender.uid);
         applyHitOrBlock(attacker, defender, m, false);
-        if (m.isThrow || m.isRageArt || roundPhase !== 'fight') break;
+        if (m.isRageArt || roundPhase !== 'fight') break;
       }
     }
   }
 
   function canDefenderBlockMove(defender, attacker, move) {
-    if (move.isThrow) return false;
     if (defender.y < GROUND_Y - 4) return false;
-    if (['attack', 'hitstun', 'air_hit', 'wall_splat', 'knockdown', 'throwing', 'grabbed'].includes(defender.state)) {
+    if (['attack', 'hitstun', 'air_hit', 'wall_splat', 'knockdown', 'rage_cinematic'].includes(defender.state)) {
       return false;
     }
+    if (!defender.guarding) return false;
 
-    // 등 뒤에서 날아오는 협공 기습은 가드 버튼(Space) 없이는 자동 후진가드 불가!
-    const attackedFromFront = (attacker.x - defender.x) * defender.facing >= -20;
-
-    let activeGuard = false;
-    if (!defender.isCpu) {
-      const inputSlot = (matchConfig.mode === 'vs_2p' && defender.team === 2) ? 2 : 1;
-      const holdingBack = (defender.facing === 1 && isHoldingLeft(inputSlot)) || (defender.facing === -1 && isHoldingRight(inputSlot));
-      activeGuard = isHoldingGuardBtn(inputSlot) || (holdingBack && attackedFromFront);
-    } else {
-      activeGuard = Boolean(defender.aiGuardBtn) && attackedFromFront;
-    }
-    if (!activeGuard) return false;
-
+    // 스페이스바 가드는 전후방 커버하되, 상·중·하단 심리전 적용!
     if (move.height === 'low') return defender.crouching;
-    if (move.height === 'overhead' || (move.height === 'mid' && (move.isLauncher || move.powerCrush || move.isRageArt))) {
-      return !defender.crouching;
-    }
+    if (move.height === 'overhead') return !defender.crouching;
     return true;
   }
 
@@ -1786,9 +1839,8 @@ const FightEngine = (() => {
       hitstopTimer = Math.max(hitstopTimer, dur);
       return;
     }
-    // 다대다 난전에서는 플레이어가 직접 관여한 강타일 때만 짧은 히트스톱을 적용해 60fps 쾌적함 유지!
     if ((attacker && !attacker.isCpu) || (defender && !defender.isCpu)) {
-      hitstopTimer = Math.max(hitstopTimer, Math.min(0.048, dur * 0.55));
+      hitstopTimer = Math.max(hitstopTimer, Math.min(0.045, dur * 0.55));
     }
   }
 
@@ -1797,32 +1849,14 @@ const FightEngine = (() => {
     const contactX = (attacker.x + defender.x) * 0.5 + atkDir * 18;
     const contactY = defender.y - (move.height === 'low' ? 42 : 98);
 
-    // 1. 잡기(Throw)
-    if (move.isThrow) {
-      if (defender.y < GROUND_Y - 8 || defender.state === 'air_hit' || defender.state === 'grabbed') return;
-      attacker.state = 'throwing';
-      attacker.stateTime = 0;
-      attacker.vx = 0;
-      attacker.grabTarget = defender;
-      defender.state = 'grabbed';
-      defender.stateTime = 0;
-      defender.vx = 0;
-      defender.grabTarget = attacker;
-      defender.x = clamp(attacker.x + attacker.facing * 72, WALL_LEFT, WALL_RIGHT);
-      defender.throwEscapeWindow = 0.20;
-      if (canPlaySfxFor(attacker, defender)) SoundFX.lightHit();
-      showCallout(attacker, '🤼 GRAB!');
-      return;
-    }
-
-    // 2. 가드 성공
+    // 1. 스페이스바 가드 성공 판정
     if (canDefenderBlockMove(defender, attacker, move)) {
       const isParry = defender.justGuardWindow > 0 && !move.isRageArt;
       if (isParry) {
-        defender.meter = Math.min(100, defender.meter + 18);
-        defender.stunTimer = 0.05;
+        defender.meter = Math.min(100, defender.meter + 20);
+        defender.stunTimer = 0.04;
         defender.state = 'blockstun';
-        defender.vx = -atkDir * 90;
+        defender.vx = -atkDir * 85;
         if (!isProjectile) attacker.vx = -atkDir * 240;
         applyHitstopIfRelevant(attacker, defender, 0.08);
         if (canPlaySfxFor(attacker, defender)) SoundFX.clashClang(4);
@@ -1832,16 +1866,16 @@ const FightEngine = (() => {
       }
 
       defender.guardHp -= (move.guardDmg || 14);
-      const chip = matchConfig.mode === 'training' ? 0 : (move.chip || 5);
+      const chip = matchConfig.mode === 'training' ? 0 : (move.chip || 3);
       defender.hp = Math.max(1, defender.hp - chip);
-      attacker.meter = Math.min(100, attacker.meter + Math.round((move.meterGain || 8) * 0.5));
-      defender.meter = Math.min(100, defender.meter + 6);
+      attacker.meter = Math.min(100, attacker.meter + Math.round((move.meterGain || 10) * 0.45));
+      defender.meter = Math.min(100, defender.meter + 8); // 가드 성공 시 방어자도 필살기 게이지 충전!
 
       if (defender.guardHp <= 0) {
-        defender.guardHp = 100;
+        defender.guardHp = defender.maxGuard;
         defender.state = 'hitstun';
-        defender.stunTimer = 0.75;
-        defender.vx = atkDir * 260;
+        defender.stunTimer = 0.72;
+        defender.vx = atkDir * 250;
         applyHitstopIfRelevant(attacker, defender, 0.11);
         cam.shake = Math.max(cam.shake, 14);
         if (canPlaySfxFor(attacker, defender)) SoundFX.staggerBreak();
@@ -1851,15 +1885,15 @@ const FightEngine = (() => {
       }
 
       defender.state = 'blockstun';
-      defender.stunTimer = move.blockstun || 0.18;
-      defender.vx = atkDir * (move.pushBlock || 150);
+      defender.stunTimer = move.blockstun || 0.16;
+      defender.vx = atkDir * (move.pushBlock || 145);
       applyHitstopIfRelevant(attacker, defender, 0.04);
       if (canPlaySfxFor(attacker, defender)) SoundFX.guardBlock();
       FightVFX.spawnBlockSpark(contactX, contactY, false, false);
       return;
     }
 
-    // 3. 피격자 파워 크러시 슈퍼아머 버티기
+    // 2. 피격자 파워 크러시 슈퍼아머 버티기 (단, 2번 슬롯 라이징 어퍼는 아머를 파훼!)
     const defMove = defender.state === 'attack' ? defender.curMove : null;
     if ((defMove && defMove.powerCrush) && !move.isRageArt && !move.isLauncher && defender.hp > move.dmg) {
       const reducedDmg = Math.round(move.dmg * 0.45);
@@ -1868,42 +1902,44 @@ const FightEngine = (() => {
       applyHitstopIfRelevant(attacker, defender, 0.05);
       if (canPlaySfxFor(attacker, defender)) SoundFX.guardBlock();
       FightVFX.spawnHitSpark(contactX, contactY, atkDir, 'light', '#00e5ff');
-      showCallout(defender, '🛡️ POWER CRUSH!');
+      showCallout(defender, '🛡️ SUPER ARMOR!');
       return;
     }
 
-    // 4. 레이지 아츠 적중
+    // 3. 5번 초필살기 적중
     if (move.isRageArt) {
       startRageCinematicCombo(attacker, defender, move);
       return;
     }
 
-    // 5. 타격 적중 & 콤보/저글
-    const isCounter = defender.state === 'attack' && defender.moveTime < (defender.curMove ? defender.curMove.startup + defender.curMove.active : 0.2);
-    const rageBoost = attacker.inRage ? 1.15 : 1.0;
-    const counterBoost = isCounter ? 1.25 : 1.0;
-    const comboScale = isBrawlMode()
-      ? Math.max(0.50, 1.0 - attacker.comboCount * 0.06)
-      : Math.max(0.35, 1.0 - attacker.comboCount * 0.09);
+    // 4. 일반 / 카운터 적중 및 밸런스 보정
+    const isCounter = defender.state === 'attack' && defender.moveTime < (defender.curMove ? defender.curMove.startup + defender.curMove.active : 0.18);
+    const rageBoost = attacker.inRage ? 1.12 : 1.0;
+    const counterBoost = isCounter ? 1.20 : 1.0;
+    const comboScale = Math.max(0.38, 1.0 - attacker.comboCount * 0.10);
     const finalDmg = Math.max(8, Math.round(move.dmg * rageBoost * counterBoost * comboScale));
 
     applyDamageToFighter(attacker, defender, finalDmg, true);
-    attacker.meter = Math.min(100, attacker.meter + (move.meterGain || 10));
-    defender.meter = Math.min(100, defender.meter + 8);
+    attacker.meter = Math.min(100, attacker.meter + (move.meterGain || 11));
+    defender.meter = Math.min(100, defender.meter + 10);
 
+    // 피격 시 AI 예약 콤보 즉시 초기화 (유령 후속타 방지!)
     defender.curMove = null;
+    defender.aiComboQueue.length = 0;
     defender.hitFlashTimer = 0.14;
-    applyHitstopIfRelevant(attacker, defender, isCounter ? 0.10 : (move.hitstop || 0.06));
+    defender.continuousTakenDmg += finalDmg;
+
+    applyHitstopIfRelevant(attacker, defender, isCounter ? 0.095 : (move.hitstop || 0.055));
     cam.shake = Math.max(cam.shake, isCounter || move.spark !== 'light' ? 11 : 5);
 
     if (canPlaySfxFor(attacker, defender)) {
-      if (move.isLauncher || (isCounter && move.id === 'heavy')) SoundFX.launcherHit();
+      if (move.isLauncher) SoundFX.launcherHit();
       else if (isCounter) SoundFX.critHit();
       else if (move.spark === 'heavy' || move.spark === 'special') SoundFX.heavyHit();
       else SoundFX.lightHit();
     }
 
-    if (move.isLauncher || (isCounter && move.id === 'heavy')) {
+    if (move.isLauncher) {
       FightVFX.spawnHitSpark(contactX, contactY, atkDir, 'launcher', attacker.prof.accent);
       showCallout(attacker, isCounter ? '⚡ COUNTER LAUNCH!' : '🚀 LAUNCH!');
     } else if (isCounter) {
@@ -1918,27 +1954,41 @@ const FightEngine = (() => {
       return;
     }
 
+    // [밸런스 패치] 공중 4히트 초과 또는 다대다 일점사 누적 시 자동 공중 낙법(Tech Recovery) 발동!
     const alreadyAir = defender.y < GROUND_Y - 4 || defender.state === 'air_hit';
-    if (move.isLauncher || (isCounter && move.id === 'heavy') || alreadyAir || (move.launchVy && move.launchVy < -200)) {
+    if ((alreadyAir && defender.juggleCount >= MAX_JUGGLE_HITS) || (isBrawlMode() && defender.continuousTakenDmg >= 250)) {
+      defender.state = 'jump';
+      defender.invulnTimer = 0.42;
+      defender.juggleCount = 0;
+      defender.continuousTakenDmg = 0;
+      defender.boundPending = false;
+      defender.vy = -420;
+      defender.vx = atkDir * 360;
+      FightVFX.spawnBlockSpark(defender.x, defender.y - 80, true, false);
+      showCallout(defender, '💫 긴급 낙법!');
+      return;
+    }
+
+    if (move.isLauncher || alreadyAir || (move.launchVy && move.launchVy < -200)) {
       defender.state = 'air_hit';
       defender.juggleCount++;
       if (!alreadyAir) {
         defender.y = GROUND_Y - 6;
-        defender.vy = move.isLauncher ? move.launchVy : (isCounter && move.id === 'heavy' ? -840 : move.launchVy);
+        defender.vy = move.isLauncher ? move.launchVy : move.launchVy;
         defender.vx = atkDir * (move.pushHit * 0.45);
       } else if (move.causesBoundInAir && !defender.boundUsedInCombo) {
         defender.vy = 760;
-        defender.vx = atkDir * 220;
+        defender.vx = atkDir * 210;
         defender.boundPending = true;
       } else {
-        const popScale = Math.max(0.55, 1 - defender.juggleCount * 0.07);
-        defender.vy = (move.airPopVy || -520) * popScale;
-        defender.vx = atkDir * (180 + defender.juggleCount * 26);
+        const popScale = Math.max(0.55, 1 - defender.juggleCount * 0.08);
+        defender.vy = (move.airPopVy || -500) * popScale;
+        defender.vx = atkDir * (185 + defender.juggleCount * 30);
       }
     } else {
       defender.state = 'hitstun';
-      defender.stunTimer = (move.hitstun || 0.34) + (isCounter ? 0.12 : 0);
-      defender.vx = atkDir * (move.pushHit || 180);
+      defender.stunTimer = (move.hitstun || 0.32) + (isCounter ? 0.10 : 0);
+      defender.vx = atkDir * (move.pushHit || 175);
     }
   }
 
@@ -1981,52 +2031,13 @@ const FightEngine = (() => {
       attacker.comboDisplayTimer = 1.65;
     }
     attacker.totalDamageDealt += dmg;
-    spawnDamagePopup(defender, dmg, dmg >= 85);
+    spawnDamagePopup(defender, dmg, dmg >= 75);
 
     if (matchConfig.mode === 'training') {
       defender.hp = Math.max(1, defender.hp - dmg);
       return;
     }
     defender.hp = Math.max(0, defender.hp - dmg);
-  }
-
-  function performThrowEscape(defender) {
-    const attacker = defender.grabTarget;
-    defender.state = 'idle';
-    defender.grabTarget = null;
-    if (attacker) {
-      defender.vx = -attacker.facing * 260;
-      attacker.state = 'idle';
-      attacker.grabTarget = null;
-      attacker.vx = attacker.facing * -220;
-      FightVFX.spawnBlockSpark((attacker.x + defender.x) * 0.5, defender.y - 95, true, false);
-    }
-    SoundFX.clashClang(3);
-    showCallout(defender, '✋ THROW ESCAPE!');
-  }
-
-  function executeThrowSlam(attacker, defender) {
-    const rageBoost = attacker.inRage ? 1.15 : 1.0;
-    const dmg = Math.round(attacker.moves.throw_grab.dmg * rageBoost);
-    applyDamageToFighter(attacker, defender, dmg, true);
-    attacker.meter = Math.min(100, attacker.meter + 16);
-    attacker.grabTarget = null;
-    defender.grabTarget = null;
-
-    cam.shake = Math.max(cam.shake, 15);
-    applyHitstopIfRelevant(attacker, defender, 0.10);
-    if (canPlaySfxFor(attacker, defender)) SoundFX.wallSplat();
-    FightVFX.spawnGroundSlam(defender.x, attacker.prof.accent, 125);
-    FightVFX.spawnHitSpark(defender.x, GROUND_Y - 35, attacker.facing, 'heavy', attacker.prof.accent);
-    showCallout(attacker, '💥 SLAM THROW!');
-
-    if (defender.hp <= 0) {
-      handleFighterDefeated(attacker, defender);
-    } else {
-      defender.state = 'knockdown';
-      defender.stateTime = 0;
-      defender.vx = attacker.facing * 260;
-    }
   }
 
   function startRageCinematicCombo(attacker, defender, move) {
@@ -2041,6 +2052,7 @@ const FightEngine = (() => {
     defender.state = 'hitstun';
     defender.stunTimer = 2.5;
     defender.invulnTimer = 1.1;
+    defender.aiComboQueue.length = 0;
     defender.vx = 0;
     defender.y = GROUND_Y;
     defender.x = clamp(attacker.x + attacker.facing * 135, WALL_LEFT + 40, WALL_RIGHT - 40);
@@ -2053,6 +2065,7 @@ const FightEngine = (() => {
   function updateRageCinematicBarrage(attacker, defender, dt) {
     if (!defender) {
       attacker.state = 'idle';
+      attacker.curMove = null;
       return;
     }
     const totalHits = 6;
@@ -2062,7 +2075,7 @@ const FightEngine = (() => {
     if (expectedStep > attacker.rageStep && attacker.rageStep < totalHits) {
       attacker.rageStep++;
       const isFinal = attacker.rageStep === totalHits;
-      const totalDmg = Math.round(attacker.rageMove.dmg * (attacker.inRage ? 1.15 : 1.0));
+      const totalDmg = Math.round(attacker.rageMove.dmg * (attacker.inRage ? 1.12 : 1.0));
       const sliceDmg = isFinal ? totalDmg - Math.floor(totalDmg / totalHits) * (totalHits - 1) : Math.floor(totalDmg / totalHits);
 
       applyDamageToFighter(attacker, defender, sliceDmg, true);
@@ -2086,6 +2099,7 @@ const FightEngine = (() => {
         applyHitstopIfRelevant(attacker, defender, 0.14);
 
         attacker.state = 'idle';
+        attacker.curMove = null;
         attacker.rageTarget = null;
         if (defender.hp <= 0) {
           handleFighterDefeated(attacker, defender);
@@ -2093,8 +2107,8 @@ const FightEngine = (() => {
         }
         defender.state = 'air_hit';
         defender.y = GROUND_Y - 10;
-        defender.vy = -760;
-        defender.vx = attacker.facing * 640;
+        defender.vy = -720;
+        defender.vx = attacker.facing * 620;
         return;
       } else {
         if (canPlaySfxFor(attacker, defender)) SoundFX.heavyHit();
@@ -2110,13 +2124,14 @@ const FightEngine = (() => {
 
     if (attacker.stateTime >= totalHits * stepInterval + 0.22) {
       attacker.state = 'idle';
+      attacker.curMove = null;
       attacker.rageTarget = null;
       attacker.stateTime = 0;
     }
   }
 
   // ==========================================================================
-  // 9. 개별 파이터 K.O. · 자동 태그 계승 · 팀 전멸 승리 판정
+  // 9. K.O. · 자동 태그 · 결과 집계
   // ==========================================================================
   function handleFighterDefeated(attacker, loser) {
     if (!loser || loser.state === 'ko') return;
@@ -2133,25 +2148,22 @@ const FightEngine = (() => {
     const survivors = oppTeam.filter(f => f.hp > 0 && f.state !== 'ko');
 
     if (survivors.length > 0) {
-      // 다대다 난전 중 중간 K.O. 발생! (전투는 멈추지 않고 계속 진행!)
       SoundFX.heavyHit();
       cam.shake = Math.max(cam.shake, 18);
       FightVFX.spawnKoExplosion(loser.x, loser.y - 90);
       if (attacker) showCallout(attacker, `💀 ${loser.name} K.O.!`);
 
-      // 내가 조종하던 캐릭터가 쓰러졌는데 생존 아군이 남아있다면 즉시 다음 아군으로 컨트롤 자동 계승!
       if (loser === controlledFighter) {
         const nextAlly = survivors[0];
         nextAlly.isCpu = false;
         controlledFighter = nextAlly;
         FightVFX.spawnGroundSlam(nextAlly.x, '#00e5ff', 105);
         showCenterBanner(`${loser.name} DOWN!`, `🔄 ${nextAlly.name} 자동 태그 참전!`, 0.95);
-        refreshBottomMoveStrip();
+        renderSkillDockDOM();
       }
       return;
     }
 
-    // 상대 팀 전원 전멸!! 최종 K.O.!
     roundPhase = 'ko_freeze';
     phaseTimer = 1.60;
     projectiles = [];
@@ -2193,7 +2205,6 @@ const FightEngine = (() => {
     if (t1WonRound) team1RoundsWon++;
     else team2RoundsWon++;
 
-    // 다대다 팀 난전은 단판 총력전(1선승), 1v1 모드는 정통 3판 2선승!
     const targetWins = isBrawlMode() ? 1 : 2;
 
     if (team1RoundsWon >= targetWins || team2RoundsWon >= targetWins) {
@@ -2294,7 +2305,7 @@ const FightEngine = (() => {
   }
 
   // ==========================================================================
-  // 10. 지능형 AI (1v1 정밀 공방 & 다대다 난전 협공 AI)
+  // 10. 밸런스 패치된 공정한 상태 기반 CPU AI (유령 setTimeout 공격 완전 제거!)
   // ==========================================================================
   function updateTrainingDummy(dummy, dt) {
     dummy.aiMoveX = 0;
@@ -2311,88 +2322,83 @@ const FightEngine = (() => {
   function updateCpuAI(ai, target, dt) {
     ai.aiTargetUid = target.uid;
     const diff = matchConfig.difficulty;
-    const reactInterval = diff === 'hard' ? 0.12 : (diff === 'normal' ? 0.22 : 0.36);
+    const reactInterval = diff === 'hard' ? 0.16 : (diff === 'normal' ? 0.28 : 0.44);
     const dist = Math.abs(target.x - ai.x);
 
-    if (ai.aiComboQueue.length > 0 && target.state === 'air_hit' && dist < 245) {
+    // 예약된 연계기 큐 처리 (피격 시 자동 취소되므로 100% 공정함)
+    if (ai.aiComboQueue.length > 0 && dist < 245) {
       ai.aiThinkTimer -= dt;
       if (ai.aiThinkTimer <= 0) {
         const nextMv = ai.aiComboQueue.shift();
         queueOrExecuteMove(ai, nextMv);
-        ai.aiThinkTimer = 0.24;
+        ai.aiThinkTimer = 0.19;
       }
       ai.aiMoveX = Math.sign(target.x - ai.x);
       return;
-    } else if (target.state !== 'air_hit') {
+    } else if (ai.aiComboQueue.length > 0 && dist >= 280) {
       ai.aiComboQueue.length = 0;
     }
 
     ai.aiThinkTimer -= dt;
     if (ai.aiThinkTimer > 0) return;
-    ai.aiThinkTimer = reactInterval * (0.75 + Math.random() * 0.55);
+    ai.aiThinkTimer = reactInterval * (0.8 + Math.random() * 0.5);
 
     ai.aiMoveX = 0;
     ai.aiCrouchReq = false;
     ai.aiGuardBtn = false;
 
-    const incomingProj = projectiles.some(p => p.team !== ai.team && Math.abs(p.x - ai.x) < 340);
-    const targetSwinging = target.state === 'attack' && dist < 260;
+    const incomingProj = projectiles.some(p => p.team !== ai.team && Math.abs(p.x - ai.x) < 320);
+    const targetSwinging = target.state === 'attack' && dist < 250;
 
     if (incomingProj || targetSwinging) {
       const guardChance = isBrawlMode()
-        ? (diff === 'hard' ? 0.58 : (diff === 'normal' ? 0.36 : 0.18))
-        : (diff === 'hard' ? 0.80 : (diff === 'normal' ? 0.52 : 0.24));
+        ? (diff === 'hard' ? 0.50 : (diff === 'normal' ? 0.32 : 0.15))
+        : (diff === 'hard' ? 0.68 : (diff === 'normal' ? 0.45 : 0.20));
       if (Math.random() < guardChance) {
         ai.aiGuardBtn = true;
-        ai.aiMoveX = -ai.facing;
-        if (target.curMove && target.curMove.height === 'low' && Math.random() < 0.55) {
+        if (target.curMove && target.curMove.height === 'low' && Math.random() < 0.50) {
           ai.aiCrouchReq = true;
         }
         return;
       }
-      if (diff !== 'easy' && ai.meter >= 25 && Math.random() < 0.28) {
-        queueOrExecuteMove(ai, 'sp2');
-        return;
-      }
     }
 
-    if (canUseRageArt(ai) && dist < 310 && Math.random() < (diff === 'hard' ? 0.42 : 0.24)) {
+    if (canUseRageArt(ai) && dist < 290 && Math.random() < (diff === 'hard' ? 0.35 : 0.18)) {
       queueOrExecuteMove(ai, 'rage');
       return;
     }
 
     if (dist > 430) {
-      if ((ai.prof.sp1.startsWith('proj_') || ai.prof.sp1.startsWith('beam_')) && Math.random() < 0.54) {
+      if ((ai.prof.sp1.startsWith('proj_') || ai.prof.sp1.startsWith('beam_')) && Math.random() < 0.42) {
         queueOrExecuteMove(ai, 'sp1');
-      } else if (Math.random() < 0.58) {
+      } else if (Math.random() < 0.50) {
         triggerDash(ai, ai.facing);
       } else {
         ai.aiMoveX = Math.sign(target.x - ai.x);
       }
     } else if (dist > 205) {
       const roll = Math.random();
-      if (roll < 0.34) ai.aiMoveX = Math.sign(target.x - ai.x);
-      else if (roll < 0.56) queueOrExecuteMove(ai, 'sp1');
-      else if (roll < 0.75 && ai.meter >= 25) queueOrExecuteMove(ai, 'sp2');
-      else if (roll < 0.90) triggerDash(ai, ai.facing);
-      else ai.aiMoveX = -ai.facing;
+      if (roll < 0.38) ai.aiMoveX = Math.sign(target.x - ai.x);
+      else if (roll < 0.60) queueOrExecuteMove(ai, 'sp1');
+      else if (roll < 0.78) queueOrExecuteMove(ai, 'sp2');
+      else triggerDash(ai, ai.facing);
     } else {
       const roll = Math.random();
-      if (target.guarding && roll < (diff === 'hard' ? 0.45 : 0.25)) {
-        queueOrExecuteMove(ai, Math.random() < 0.55 ? 'throw_grab' : 'low');
-      } else if (roll < 0.36) {
+      if (target.guarding && roll < (diff === 'hard' ? 0.42 : 0.22)) {
+        queueOrExecuteMove(ai, Math.random() < 0.55 ? 'low' : 'launcher');
+      } else if (roll < 0.42) {
         queueOrExecuteMove(ai, 'jab1');
-        if (Math.random() < 0.75) setTimeout(() => running && !paused && queueOrExecuteMove(ai, 'jab2'), 110);
-        if (Math.random() < 0.58) setTimeout(() => running && !paused && queueOrExecuteMove(ai, 'jab3'), 230);
-      } else if (roll < 0.60) {
+        ai.aiComboQueue = Math.random() < 0.6 ? ['jab2', 'jab3'] : ['jab2'];
+        ai.aiThinkTimer = 0.16;
+      } else if (roll < 0.65) {
         queueOrExecuteMove(ai, 'launcher');
         if (diff !== 'easy') {
-          ai.aiComboQueue = diff === 'hard' ? ['jab1', 'jab2', 'sp2'] : ['jab1', 'heavy'];
-          ai.aiThinkTimer = 0.28;
+          ai.aiComboQueue = diff === 'hard' ? ['jab1', 'jab2', 'sp2'] : ['jab1', 'jab3'];
+          ai.aiThinkTimer = 0.26;
         }
-      } else if (roll < 0.78) {
-        queueOrExecuteMove(ai, 'heavy');
-      } else if (roll < 0.90) {
+      } else if (roll < 0.82) {
+        queueOrExecuteMove(ai, 'sp2');
+      } else if (roll < 0.92) {
         queueOrExecuteMove(ai, 'low');
       } else {
         triggerDash(ai, -ai.facing);
@@ -2401,7 +2407,7 @@ const FightEngine = (() => {
   }
 
   // ==========================================================================
-  // 11. 다이내믹 카메라 & 스테이지/HUD 동기화
+  // 11. 다이내믹 카메라 & 스테이지/스킬슬롯 실시간 동기화
   // ==========================================================================
   function updateCamera(rawDt) {
     const living = allFighters.filter(f => f.hp > 0);
@@ -2419,7 +2425,6 @@ const FightEngine = (() => {
 
     let midX = (minX + maxX) * 0.5;
     if (isBrawlMode() && controlledFighter && controlledFighter.hp > 0) {
-      // 직접 조작 중일 때는 플레이어가 화면 밖으로 밀리지 않도록 중심 가중치 부여
       midX = midX * 0.55 + controlledFighter.x * 0.45;
     }
 
@@ -2475,7 +2480,7 @@ const FightEngine = (() => {
       const spin = -f.facing * clamp(f.vy * -0.035, -38, 45);
       return { pose: 'hit', vfx: 'hit', rot: spin, sx: 0.96, sy: 1.04, dy: 0 };
     }
-    if (f.state === 'hitstun' || f.state === 'grabbed') {
+    if (f.state === 'hitstun') {
       return { pose: 'hit', vfx: 'hit', rot: -f.facing * 12, sx: 0.94, sy: 1.05, dy: 0 };
     }
     if (f.state === 'blockstun' || f.guarding) {
@@ -2487,9 +2492,6 @@ const FightEngine = (() => {
     if (f.state === 'rage_cinematic') {
       const cycle = ['ego', 'skill1', 'skill2', 'action', 'skill3', 'ego'];
       return { pose: cycle[(f.rageStep || 0) % cycle.length], vfx: 'ego', rot: f.facing * 6, sx: 1.12, sy: 1.12, dy: -8 };
-    }
-    if (f.state === 'throwing') {
-      return { pose: f.stateTime < 0.25 ? 'action' : 'skill3', vfx: 'blunt', rot: f.facing * 10, sx: 1.08, sy: 0.96, dy: 4 };
     }
     if (f.state === 'attack' && f.curMove) {
       const m = f.curMove;
@@ -2582,6 +2584,26 @@ const FightEngine = (() => {
   function updateHudDOM() {
     const el = (id) => document.getElementById(id);
 
+    // 슬롯 쿨타임 게이지 & 5번 초필살기 점등 실시간 갱신
+    const cf = controlledFighter || team1[0];
+    if (cf) {
+      for (let s = 2; s <= 4; s++) {
+        const cdEl = el(`slot-cd-${s}`);
+        if (cdEl) {
+          const maxCd = SLOT_COOLDOWNS[s] || 0.4;
+          const pct = clamp(((cf.slotCooldowns[s] || 0) / maxCd) * 100, 0, 100);
+          cdEl.style.height = `${pct.toFixed(0)}%`;
+        }
+      }
+      const ultCard = el('skill-slot-card-5');
+      if (ultCard) {
+        const ready = canUseRageArt(cf);
+        ultCard.classList.toggle('ult-ready', ready);
+        const tag = ultCard.querySelector('.ult-tag');
+        if (tag) tag.textContent = ready ? '🔥 숫자 5 즉시발동!' : `게이지 ${Math.floor(cf.meter)}%`;
+      }
+    }
+
     if (!isBrawlMode()) {
       const f1 = team1[0];
       const f2 = team2[0];
@@ -2596,8 +2618,8 @@ const FightEngine = (() => {
 
       if (el('hud-p1-hp')) el('hud-p1-hp').classList.toggle('rage-bar', f1.inRage);
       if (el('hud-p2-hp')) el('hud-p2-hp').classList.toggle('rage-bar', f2.inRage);
-      if (el('hud-p1-guard')) el('hud-p1-guard').style.width = `${clamp(f1.guardHp, 0, 100)}%`;
-      if (el('hud-p2-guard')) el('hud-p2-guard').style.width = `${clamp(f2.guardHp, 0, 100)}%`;
+      if (el('hud-p1-guard')) el('hud-p1-guard').style.width = `${clamp((f1.guardHp / f1.maxGuard) * 100, 0, 100)}%`;
+      if (el('hud-p2-guard')) el('hud-p2-guard').style.width = `${clamp((f2.guardHp / f2.maxGuard) * 100, 0, 100)}%`;
 
       if (el('hud-p1-rounds')) {
         el('hud-p1-rounds').innerHTML = [0, 1].map(i => `<span class="round-orb ${team1RoundsWon > i ? 'won' : ''}"></span>`).join('');
@@ -2614,7 +2636,6 @@ const FightEngine = (() => {
       renderComboOverlay(1, f1);
       renderComboOverlay(2, f2);
     } else {
-      // 다대다 팀 난전 전용 HUD 갱신
       if (el('brawl-t1-hp')) el('brawl-t1-hp').style.width = `${clamp(getTeamHpRatio(team1) * 100, 0, 100)}%`;
       if (el('brawl-t2-hp')) el('brawl-t2-hp').style.width = `${clamp(getTeamHpRatio(team2) * 100, 0, 100)}%`;
 
@@ -2653,15 +2674,15 @@ const FightEngine = (() => {
     if (leftF && el('hud-p1-meter') && el('hud-p1-meter-txt')) {
       el('hud-p1-meter').style.width = `${clamp(leftF.meter, 0, 100)}%`;
       el('hud-p1-meter-txt').textContent = canUseRageArt(leftF)
-        ? `🔥 ${leftF.name} RAGE ART READY! [O]`
-        : `${leftF.name} HEAT ${Math.floor(leftF.meter)}%`;
+        ? `🔥 [5]번 키 필살기 발동 가능!`
+        : `${leftF.name} 필살 게이지 ${Math.floor(leftF.meter)}%`;
       el('hud-p1-meter-txt').classList.toggle('ready', canUseRageArt(leftF));
     }
     if (rightF && el('hud-p2-meter') && el('hud-p2-meter-txt')) {
       el('hud-p2-meter').style.width = `${clamp(rightF.meter, 0, 100)}%`;
       el('hud-p2-meter-txt').textContent = canUseRageArt(rightF)
-        ? `🔥 ${rightF.name} RAGE ART!`
-        : `${rightF.name} HEAT ${Math.floor(rightF.meter)}%`;
+        ? `🔥 ${rightF.name} 필살기 준비!`
+        : `${rightF.name} 필살 게이지 ${Math.floor(rightF.meter)}%`;
       el('hud-p2-meter-txt').classList.toggle('ready', canUseRageArt(rightF));
     }
   }
@@ -2725,6 +2746,7 @@ const FightEngine = (() => {
     togglePause,
     toggleHitboxDebug,
     pressVirtualAction,
+    selectSlot,
     swapControlledAlly,
     cycleBrawlSpeed,
     getMatchState: () => ({ team1, team2, controlledFighter, roundNum, roundPhase, matchConfig })
