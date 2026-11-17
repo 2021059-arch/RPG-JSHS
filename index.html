@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>전곽: IRON FIST — 2D 격투 &amp; 다대다 팀 난전 액션 (THE BEST)</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- ====================================================================
+         SCREEN 1: CHARACTER & TEAM BRAWL SELECT SCREEN
+         ==================================================================== -->
+    <section id="screen-select" class="screen active">
+      <!-- Top Arcade Header -->
+      <header class="select-topbar">
+        <div class="brand-logo">
+          <span class="logo-tag">IRON FIST &amp; BRAWL</span>
+          <h1>전곽: THE BEST</h1>
+        </div>
+
+        <div class="mode-pills-group">
+          <button class="mode-pill-btn active" data-mode-btn="vs_cpu" onclick="AppController.setMode('vs_cpu')">
+            ⚔️ 1v1 대전 (VS CPU)
+          </button>
+          <button class="mode-pill-btn brawl-tab" data-mode-btn="brawl" onclick="AppController.setMode('brawl')">
+            🔥 다대다 팀 난전 (최대 5v5)
+          </button>
+          <button class="mode-pill-btn" data-mode-btn="arcade" onclick="AppController.setMode('arcade')">
+            🏆 아케이드 5연전
+          </button>
+          <button class="mode-pill-btn" data-mode-btn="vs_2p" onclick="AppController.setMode('vs_2p')">
+            👥 2인 로컬 대전
+          </button>
+          <button class="mode-pill-btn" data-mode-btn="training" onclick="AppController.setMode('training')">
+            🎯 트레이닝
+          </button>
+        </div>
+
+        <div class="topbar-right">
+          <div id="difficulty-selector-wrap" class="diff-group">
+            <span class="diff-lbl">AI</span>
+            <button class="diff-btn" data-diff-btn="easy" onclick="AppController.setDifficulty('easy')">EASY</button>
+            <button class="diff-btn active" data-diff-btn="normal" onclick="AppController.setDifficulty('normal')">NORMAL</button>
+            <button class="diff-btn" data-diff-btn="hard" onclick="AppController.setDifficulty('hard')">HARD</button>
+          </div>
+          <button id="bgm-toggle-btn" class="util-btn" onclick="AppController.toggleBgm()">BGM: ON</button>
+          <button id="audio-toggle-btn" class="util-btn" onclick="AppController.toggleAudio()">SFX: ON</button>
+        </div>
+      </header>
+
+      <!-- Main 3-Column Character / Team Select Stage -->
+      <div class="select-main-layout">
+        <!-- Left: 1P Showcase OR Blue Team Lineup -->
+        <div id="select-p1-panel" class="showcase-col"></div>
+
+        <!-- Center: 20-Character Roster, Presets & Stage Picker -->
+        <div id="select-center-panel" class="roster-center-col"></div>
+
+        <!-- Right: 2P Showcase OR Red Team Lineup -->
+        <div id="select-p2-panel" class="showcase-col"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 2: REAL-TIME 60FPS 2D FIGHTING & TEAM BRAWL ARENA
+         ==================================================================== -->
+    <section id="screen-fight" class="screen">
+      <!-- Top HUD Variant A: Classic 1v1 Tekken Health & Round Timer HUD -->
+      <div id="hud-1v1-wrap" class="fight-hud-top">
+        <div class="fighter-hud left">
+          <div class="hud-portrait-frame p1">
+            <img id="hud-p1-portrait" src="assets/sd/changjin.png" alt="1P" draggable="false" />
+          </div>
+          <div class="hud-bars-col">
+            <div class="hud-meta-row">
+              <div class="hud-name-group">
+                <span class="p-side-tag p1">1P</span>
+                <span id="hud-p1-name" class="hud-char-name">창진쌤</span>
+              </div>
+              <div class="hud-right-meta">
+                <span id="hud-p1-hp-num" class="hud-hp-num">1000</span>
+                <div id="hud-p1-rounds" class="round-orbs"></div>
+              </div>
+            </div>
+            <div class="hp-bar-shell left">
+              <div id="hud-p1-trail" class="hp-trail"></div>
+              <div id="hud-p1-hp" class="hp-fill p1"></div>
+              <div class="hp-bar-ticks"></div>
+            </div>
+            <div class="guard-bar-shell">
+              <div id="hud-p1-guard" class="guard-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-center-clock">
+          <div id="hud-stage-label" class="hud-stage-tag">창의관 최상층</div>
+          <div id="hud-timer" class="arcade-timer">60</div>
+          <div class="hud-mini-btns">
+            <button id="btn-hitbox-toggle" class="mini-hud-btn" onclick="FightEngine.toggleHitboxDebug()" title="히트박스 표시">BOX</button>
+            <button id="btn-touchpad-toggle" class="mini-hud-btn" onclick="AppController.toggleTouchPad()" title="화면 클릭 패드">PAD</button>
+            <button class="mini-hud-btn" onclick="FightEngine.togglePause()">메뉴 [ESC]</button>
+          </div>
+        </div>
+
+        <div class="fighter-hud right">
+          <div class="hud-bars-col right">
+            <div class="hud-meta-row right">
+              <div class="hud-right-meta">
+                <div id="hud-p2-rounds" class="round-orbs"></div>
+                <span id="hud-p2-hp-num" class="hud-hp-num">1000</span>
+              </div>
+              <div class="hud-name-group">
+                <span id="hud-p2-name" class="hud-char-name">김양우 [CPU]</span>
+                <span class="p-side-tag p2">2P</span>
+              </div>
+            </div>
+            <div class="hp-bar-shell right">
+              <div id="hud-p2-trail" class="hp-trail"></div>
+              <div id="hud-p2-hp" class="hp-fill p2"></div>
+              <div class="hp-bar-ticks"></div>
+            </div>
+            <div class="guard-bar-shell right">
+              <div id="hud-p2-guard" class="guard-fill"></div>
+            </div>
+          </div>
+          <div class="hud-portrait-frame p2">
+            <img id="hud-p2-portrait" class="flip-x" src="assets/sd/yangwoo.png" alt="2P" draggable="false" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Top HUD Variant B: Multi-Fighter Team Brawl HUD (최대 5 vs 5 난전 전용) -->
+      <div id="hud-brawl-wrap" class="fight-hud-top brawl-hud-top" style="display:none;">
+        <!-- Blue Team Force & Roster -->
+        <div class="brawl-team-hud left">
+          <div class="brawl-team-head">
+            <span class="team-title-badge blue">BLUE TEAM <small id="brawl-t1-alive">3/3</small></span>
+            <span class="brawl-tag-hint">클릭 또는 [Tab / 1~5] 조작 캐릭터 즉시 교대</span>
+          </div>
+          <div class="hp-bar-shell left compact">
+            <div id="brawl-t1-hp" class="hp-fill p1"></div>
+          </div>
+          <div id="brawl-t1-chips" class="brawl-member-chips"></div>
+        </div>
+
+        <!-- Center Brawl Clock & Controls -->
+        <div class="hud-center-clock">
+          <div id="brawl-stage-label" class="hud-stage-tag">TEAM BRAWL</div>
+          <div id="brawl-timer" class="arcade-timer">99</div>
+          <div class="hud-mini-btns">
+            <button id="btn-brawl-speed" class="mini-hud-btn" onclick="FightEngine.cycleBrawlSpeed()">1.0x</button>
+            <button class="mini-hud-btn" onclick="AppController.toggleTouchPad()">PAD</button>
+            <button class="mini-hud-btn" onclick="FightEngine.togglePause()">메뉴 [ESC]</button>
+          </div>
+        </div>
+
+        <!-- Red Team Force & Roster -->
+        <div class="brawl-team-hud right">
+          <div class="brawl-team-head right">
+            <span class="brawl-tag-hint">ENEMY FORCE</span>
+            <span class="team-title-badge red"><small id="brawl-t2-alive">3/3</small> RED TEAM</span>
+          </div>
+          <div class="hp-bar-shell right compact">
+            <div id="brawl-t2-hp" class="hp-fill p2"></div>
+          </div>
+          <div id="brawl-t2-chips" class="brawl-member-chips right"></div>
+        </div>
+      </div>
+
+      <!-- Main 1600x720 Scaled 2D Fighting & Team Brawl Stage -->
+      <div id="fight-stage-viewport" class="fight-stage-viewport">
+        <div id="fight-camera-rig" class="fight-camera-rig">
+          <div id="fight-stage-bg" class="arena-bg bg-corridor"></div>
+          <svg id="fight-decor-svg" class="fight-decor-svg" viewBox="0 0 1600 720" preserveAspectRatio="none"></svg>
+
+          <!-- Dynamic Stage Fighters Container (2 fighters in 1v1, up to 10 in Team Brawl!) -->
+          <div id="fighters-stage-layer" class="fighters-stage-layer"></div>
+
+          <!-- 60fps Hitsparks / Projectiles / Beams / Wall Cracks Canvas -->
+          <canvas id="fight-fx-canvas" width="1600" height="720" class="fight-fx-canvas"></canvas>
+
+          <!-- Floating Heavy Damage Numbers Layer -->
+          <div id="damage-pop-layer" class="damage-pop-layer"></div>
+        </div>
+
+        <!-- Live K.O. Kill-Feed (Team Brawl & Arcade) -->
+        <div id="killfeed-box" class="killfeed-box"></div>
+
+        <!-- Left / Right Real-Time Combo Counters & Callouts -->
+        <div id="combo-box-1" class="combo-overlay left"></div>
+        <div id="combo-box-2" class="combo-overlay right"></div>
+
+        <!-- Center Giant Arcade Callout (ROUND 1 / ALL-OUT BRAWL! / K.O.!) -->
+        <div id="center-announce-banner" class="center-announce-banner">
+          <div id="announce-main" class="announce-main">ROUND 1</div>
+          <div id="announce-sub" class="announce-sub"></div>
+        </div>
+
+        <!-- Tekken Rage Art Freeze Cut-In Overlay -->
+        <div id="rage-cutin-overlay" class="rage-cutin-overlay">
+          <div class="rage-cutin-slash">
+            <img id="rage-cutin-img" src="assets/sd/changjin_ego.png" alt="Rage Art" />
+            <div class="rage-cutin-texts">
+              <div id="rage-cutin-char" class="rage-char-tag">RAGE ART</div>
+              <div id="rage-cutin-move" class="rage-move-title">최고출력 - 대포 999</div>
+              <div id="rage-cutin-quote" class="rage-quote">“이걸로 끝이다!”</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Optional Click / Touch Virtual Arcade Pad -->
+        <div id="virtual-arcade-pad" class="virtual-arcade-pad">
+          <button onclick="FightEngine.swapControlledAlly()">🔄 태그교대 [Tab]</button>
+          <button onclick="FightEngine.pressVirtualAction('dash')">⚡ 대시</button>
+          <button onclick="FightEngine.pressVirtualAction('light')">👊 약연타 [J]</button>
+          <button onclick="FightEngine.pressVirtualAction('low')">🦵 하단 [↓+J]</button>
+          <button onclick="FightEngine.pressVirtualAction('heavy')">💥 강타 [K]</button>
+          <button class="accent-cyan" onclick="FightEngine.pressVirtualAction('launcher')">🚀 어퍼 [↓+K]</button>
+          <button onclick="FightEngine.pressVirtualAction('throw')">🤼 잡기 [L]</button>
+          <button class="accent-gold" onclick="FightEngine.pressVirtualAction('sp1')">✨ 필살1 [U]</button>
+          <button class="accent-orange" onclick="FightEngine.pressVirtualAction('sp2')">🛡️ 아머강습 [I]</button>
+          <button class="accent-red" onclick="FightEngine.pressVirtualAction('rage')">🔥 레이지아츠 [O]</button>
+        </div>
+      </div>
+
+      <!-- Bottom Super / Heat Gauge & Move Command Strip -->
+      <div class="fight-hud-bottom">
+        <div class="super-meter-box left">
+          <div class="super-meter-track">
+            <div id="hud-p1-meter" class="super-meter-fill p1"></div>
+          </div>
+          <div id="hud-p1-meter-txt" class="super-meter-label">HEAT 50%</div>
+        </div>
+
+        <div id="hud-movelist-strip" class="movelist-strip"></div>
+
+        <div class="super-meter-box right">
+          <div class="super-meter-track right">
+            <div id="hud-p2-meter" class="super-meter-fill p2"></div>
+          </div>
+          <div id="hud-p2-meter-txt" class="super-meter-label right">HEAT 50%</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         MODAL 1: PAUSE & COMMAND LIST MENU ([ESC])
+         ==================================================================== -->
+    <div id="pause-modal" class="arcade-modal">
+      <div id="pause-modal-card" class="arcade-modal-card">
+        <div class="result-badge">PAUSED · COMMAND GUIDE</div>
+        <h2 class="result-headline win" style="font-size:26px;margin-bottom:10px;">일시정지 &amp; 조작 커맨드 표</h2>
+        <div class="cmd-table">
+          <div><strong>전진 / 후진(자동가드)</strong> <span>A · D (또는 ← · →)</span></div>
+          <div><strong>점프 / 앉기</strong> <span>W · S (또는 ↑ · ↓)</span></div>
+          <div><strong>스텝 대시 / 코리안 백대시</strong> <span>Shift 또는 →→ / ←← 두 번 연타</span></div>
+          <div><strong>수동 가드 (저스트 가드 지원)</strong> <span>Space 길게 누르기 (앉은 채로 하단 가드)</span></div>
+          <div><strong>3단 러시 콤보 (기본 연속기)</strong> <span>J - J - J 연타 (또는 Z - Z - Z)</span></div>
+          <div><strong>하단 스윕 킥 (서서 가드 파훼)</strong> <span>↓ + J (또는 ↓ + Z)</span></div>
+          <div><strong>헤비 스매시 / 벽 꽝 유발</strong> <span>K (또는 X)</span></div>
+          <div><strong style="color:#00e5ff;">라이징 어퍼 (공중 콤보 띄우기!)</strong> <span>↓ + K 또는 → + K (띄운 뒤 J-J-I 연계!)</span></div>
+          <div><strong>가드 불능 잡기 / 잡기 풀기</strong> <span>근접 L (또는 G)</span></div>
+          <div><strong style="color:#f5d76e;">고유 필살기 1 (장풍·레이저·돌진)</strong> <span>U (또는 C)</span></div>
+          <div><strong style="color:#ff9f43;">파워 크러시 강습기 (슈퍼아머·바운드)</strong> <span>I (또는 V) — HEAT 25% 소모</span></div>
+          <div><strong style="color:#ff4757;">🔥 레이지 아츠 (초필살기)</strong> <span>O (또는 B) — 체력 35% 이하 RAGE 또는 HEAT 100%</span></div>
+          <div><strong style="color:#55efc4;">🔄 [팀 난전] 조작 아군 즉시 교대</strong> <span>Tab 또는 숫자키 [1 ~ 5]</span></div>
+        </div>
+        <div class="result-actions">
+          <button class="arcade-btn primary" onclick="FightEngine.togglePause()">계속 싸우기 [ESC]</button>
+          <button class="arcade-btn" onclick="FightEngine.togglePause(); FightEngine.rematch();">재경기 시작</button>
+          <button class="arcade-btn" onclick="AppController.backToSelect()">캐릭터·팀 선택으로 나가기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         MODAL 2: POST-MATCH VICTORY / REMATCH SCREEN
+         ==================================================================== -->
+    <div id="result-modal" class="arcade-modal">
+      <div id="result-modal-content" class="arcade-modal-card"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/vfx.js"></script>
+  <script src="js/fighter.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
