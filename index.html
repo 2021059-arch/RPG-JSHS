@@ -9,11 +9,47 @@
 <body>
   <div id="app">
     <!-- ====================================================================
+         SCREEN 0: TITLE SCREEN (PRESS ENTER → MAIN MENU)
+         ==================================================================== -->
+    <section id="screen-title" class="screen active">
+      <div class="title-bg-grid"></div>
+      <div class="title-bg-rays"></div>
+      <div id="title-cast-strip" class="title-cast-strip"></div>
+      <div class="title-center">
+        <div class="title-kicker">JEONGWAK ARENA · 2D FIGHTING &amp; TEAM BRAWL</div>
+        <h1 class="title-logo">
+          <span class="tl-main">전곽</span>
+          <span class="tl-sub">IRON FIST</span>
+        </h1>
+        <div class="title-edition">— THE BEST —</div>
+
+        <div id="title-press" class="title-press">PRESS ENTER / CLICK TO START</div>
+
+        <nav id="title-menu" class="title-menu">
+          <button class="title-menu-btn" data-title-idx="0" onclick="AppController.titleSelect(0)">
+            <span class="tm-icon">▶</span><span class="tm-label">게임 시작</span><span class="tm-desc">1v1 · 팀 난전 · 아케이드 · 트레이닝</span>
+          </button>
+          <button class="title-menu-btn" data-title-idx="1" onclick="AppController.titleSelect(1)">
+            <span class="tm-icon">📖</span><span class="tm-label">조작 가이드</span><span class="tm-desc">슬롯 + Enter · 게이지 시스템</span>
+          </button>
+          <button class="title-menu-btn" data-title-idx="2" onclick="AppController.titleSelect(2)">
+            <span class="tm-icon">🏆</span><span class="tm-label">전적 기록</span><span class="tm-desc">승률 · 최대 콤보 · 애용 캐릭터</span>
+          </button>
+          <button class="title-menu-btn" data-title-idx="3" onclick="AppController.titleSelect(3)">
+            <span class="tm-icon">⚙</span><span class="tm-label">설정</span><span class="tm-desc">음량 · 화면 흔들림 · 이펙트</span>
+          </button>
+        </nav>
+      </div>
+      <div class="title-footer">↑↓ / W S 선택 · Enter 결정 · v3.0</div>
+    </section>
+
+    <!-- ====================================================================
          SCREEN 1: CHARACTER & TEAM BRAWL SELECT SCREEN
          ==================================================================== -->
-    <section id="screen-select" class="screen active">
+    <section id="screen-select" class="screen">
       <header class="select-topbar">
         <div class="brand-logo">
+          <button class="util-btn back-title-btn" onclick="AppController.backToTitle()" title="타이틀로 [ESC]">◀</button>
           <span class="logo-tag">IRON FIST &amp; BRAWL</span>
           <h1>전곽: THE BEST</h1>
         </div>
@@ -45,6 +81,8 @@
           </div>
           <button id="bgm-toggle-btn" class="util-btn" onclick="AppController.toggleBgm()">BGM: ON</button>
           <button id="audio-toggle-btn" class="util-btn" onclick="AppController.toggleAudio()">SFX: ON</button>
+          <button class="util-btn" onclick="AppController.openModal('records-modal')" title="전적 기록">🏆</button>
+          <button class="util-btn" onclick="AppController.openModal('settings-modal')" title="설정">⚙</button>
         </div>
       </header>
 
@@ -59,6 +97,8 @@
          SCREEN 2: REAL-TIME 60FPS 2D FIGHTING & TEAM BRAWL ARENA
          ==================================================================== -->
     <section id="screen-fight" class="screen">
+      <!-- Pre-Fight VS Splash (covers HUD + stage) -->
+      <div id="vs-splash" class="vs-splash"></div>
       <!-- Top HUD Variant A: Classic 1v1 Tekken Health & Round Timer HUD -->
       <div id="hud-1v1-wrap" class="fight-hud-top">
         <div class="fighter-hud left">
@@ -175,6 +215,9 @@
 
         <div id="killfeed-box" class="killfeed-box"></div>
 
+        <!-- Training Mode Frame Data / Input Log Panel -->
+        <div id="training-panel" class="training-panel"></div>
+
         <div id="combo-box-1" class="combo-overlay left"></div>
         <div id="combo-box-2" class="combo-overlay right"></div>
 
@@ -229,29 +272,31 @@
     </section>
 
     <!-- ====================================================================
-         MODAL 1: PAUSE & COMMAND LIST MENU ([ESC])
+         MODAL 1: PAUSE MENU — 캐릭터 커맨드 리스트 & 시스템 요약 ([ESC])
          ==================================================================== -->
     <div id="pause-modal" class="arcade-modal">
-      <div id="pause-modal-card" class="arcade-modal-card">
-        <div class="result-badge">PAUSED · CONTROLS GUIDE</div>
-        <h2 class="result-headline win" style="font-size:26px;margin-bottom:10px;">일시정지 &amp; 조작 가이드</h2>
-        <div class="cmd-table">
-          <div><strong>앞뒤 이동</strong> <span>A · D &nbsp;또는&nbsp; ← · → (연타/Shift: 스텝 대시)</span></div>
-          <div><strong>점프 / 숙이기</strong> <span>W · S &nbsp;또는&nbsp; ↑ · ↓</span></div>
-          <div><strong style="color:#00e5ff;">가드 (수비 / 저스트 가드)</strong> <span>Space 길게 누르기 (숙이기 + Space: 하단 가드)</span></div>
-          <div><strong style="color:#f5d76e;">기술 슬롯 선택 (유지됨)</strong> <span>숫자키 [1] · [2] · [3] · [4] 선택</span></div>
-          <div><strong style="color:#55efc4;">선택된 슬롯 기술 발동</strong> <span>Enter (다른 숫자 누르기 전까지 해당 기술만 발동!)</span></div>
-          <div><strong>[1번 슬롯] 속공 연타</strong> <span>쿨타임 0초 · 연속 Enter로 3단 러시 (숙이면 하단킥 / 점프공격)</span></div>
-          <div><strong>[2번 슬롯] 어퍼 &amp; 가드파쇄</strong> <span>초저쿨(0.25초) · 공중 띄우기 &amp; 상대 가드 내구도 대폭 파괴</span></div>
-          <div><strong>[3번 슬롯] 고유 기술 1</strong> <span>초저쿨(0.40초) · 캐릭터 시그니처 장풍 · 레이저 · 돌진기</span></div>
-          <div><strong>[4번 슬롯] 고유 강습기 2</strong> <span>초저쿨(0.55초) · 슈퍼아머 돌파 &amp; 공중 바운드 강타</span></div>
-          <div><strong style="color:#ff4757;">🔥 [5번] 초필살기 (즉시 발동)</strong> <span>숫자키 [5]를 눌렀을 때만 즉시 발동! (게이지 100% 또는 위기 RAGE)</span></div>
-          <div><strong style="color:#a29bfe;">🔄 [팀 난전] 아군 태그 교대</strong> <span>Tab 또는 Q 키 (또는 상단 아군 초상화 클릭)</span></div>
+      <div id="pause-modal-card" class="arcade-modal-card wide">
+        <div class="result-badge">PAUSED · COMMAND LIST</div>
+        <h2 class="modal-title">일시정지</h2>
+        <div class="pause-grid">
+          <div id="pause-movelist" class="pause-movelist"></div>
+          <div class="cmd-table compact">
+            <div><strong>이동 · 점프 · 숙이기</strong> <span>WASD / 방향키</span></div>
+            <div><strong>스텝 대시</strong> <span>Shift 또는 →→ / ←←</span></div>
+            <div><strong style="color:#00e5ff;">가드 / 저스트 가드</strong> <span>Space (↓+Space 하단)</span></div>
+            <div><strong style="color:#f5d76e;">슬롯 선택 (유지)</strong> <span>1 · 2 · 3 · 4</span></div>
+            <div><strong style="color:#55efc4;">선택 기술 발동</strong> <span>Enter</span></div>
+            <div><strong style="color:#ff4757;">🔥 게이지 키 [5]</strong> <span>평상시 초필살기 (100%)</span></div>
+            <div><strong style="color:#ff9f43;">💥 콤보 브레이커</strong> <span>맞는 중 [5] · 50%</span></div>
+            <div><strong style="color:#74b9ff;">🛡️ 가드 캔슬</strong> <span>막는 중 [5] · 50%</span></div>
+            <div><strong style="color:#a29bfe;">🔄 아군 교대 (난전)</strong> <span>Tab / Q</span></div>
+          </div>
         </div>
         <div class="result-actions">
           <button class="arcade-btn primary" onclick="FightEngine.togglePause()">계속 싸우기 [ESC]</button>
-          <button class="arcade-btn" onclick="FightEngine.togglePause(); FightEngine.rematch();">재경기 시작</button>
-          <button class="arcade-btn" onclick="AppController.backToSelect()">캐릭터·팀 선택으로 나가기</button>
+          <button class="arcade-btn" onclick="FightEngine.togglePause(); FightEngine.rematch();">재경기</button>
+          <button class="arcade-btn" onclick="AppController.openModal('settings-modal')">⚙ 설정</button>
+          <button class="arcade-btn" onclick="AppController.backToSelect()">캐릭터 선택으로</button>
         </div>
       </div>
     </div>
@@ -260,8 +305,94 @@
          MODAL 2: POST-MATCH VICTORY / REMATCH SCREEN
          ==================================================================== -->
     <div id="result-modal" class="arcade-modal">
-      <div id="result-modal-content" class="arcade-modal-card"></div>
+      <div id="result-modal-content" class="arcade-modal-card wide"></div>
     </div>
+
+    <!-- ====================================================================
+         MODAL 3: CONTROLS GUIDE (타이틀에서 열람)
+         ==================================================================== -->
+    <div id="guide-modal" class="arcade-modal overlay-modal" onclick="if (event.target === this) AppController.closeModal('guide-modal')">
+      <div class="arcade-modal-card wide">
+        <div class="result-badge">HOW TO PLAY</div>
+        <h2 class="modal-title">조작 가이드 &amp; 시스템</h2>
+        <div class="guide-grid">
+          <div class="guide-card">
+            <h3>🎮 기본 조작</h3>
+            <ul>
+              <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> 이동 · 점프 · 숙이기</li>
+              <li><kbd>Shift</kbd> 또는 방향 두 번 → 스텝 대시 (백대시는 짧은 무적)</li>
+              <li><kbd>Space</kbd> 가드 · 공격 직전에 누르면 <b>JUST GUARD</b> (게이지 +20)</li>
+              <li><kbd>↓</kbd>+<kbd>Space</kbd> 하단 가드 · 점프 공격(오버헤드)은 서서 가드</li>
+            </ul>
+          </div>
+          <div class="guide-card">
+            <h3>⚔️ 슬롯 + Enter 시스템</h3>
+            <ul>
+              <li><kbd>1</kbd>~<kbd>4</kbd> 기술 슬롯 선택 — 다른 숫자를 누르기 전까지 유지</li>
+              <li><kbd>Enter</kbd> 선택한 슬롯 기술 발동 (초저쿨 0 / 0.25 / 0.40 / 0.55초)</li>
+              <li>[1] 연속 Enter로 3단 러시 · ↓+Enter 하단 · 공중 Enter 오버헤드</li>
+              <li>[2] 띄우기 + 가드파쇄 · [3] 고유기 · [4] 슈퍼아머 강습</li>
+            </ul>
+          </div>
+          <div class="guide-card accent">
+            <h3>🔥 게이지 키 [5]</h3>
+            <ul>
+              <li><b>평상시</b> 초필살기 — 게이지 100% 또는 체력 30% 이하 RAGE (1회)</li>
+              <li><b>맞는 중</b> 💥 콤보 브레이커 — 50% 소모, 주변 적 밀쳐내기</li>
+              <li><b>막는 중</b> 🛡️ 가드 캔슬 — 50% 소모, 무적 반격</li>
+              <li>게이지는 공격 적중 · 피격 · 가드 성공으로 충전</li>
+            </ul>
+          </div>
+          <div class="guide-card">
+            <h3>🧠 고급 시스템</h3>
+            <ul>
+              <li><b>COUNTER</b> 상대 공격 발생 중 적중 ×1.2 · <b>PUNISH</b> 후딜 적중 ×1.1</li>
+              <li><b>슈퍼아머</b>는 [2] 라이징 어퍼에 파훼됨</li>
+              <li>공중 4히트 후 자동 낙법 · 벽꽝 / 바운드 콤보 1회</li>
+              <li>트레이닝: 프레임 이득(+/−) · 입력 기록 · 더미 행동 설정</li>
+            </ul>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button class="arcade-btn primary" onclick="AppController.closeModal('guide-modal')">닫기 [ESC]</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         MODAL 4: SETTINGS
+         ==================================================================== -->
+    <div id="settings-modal" class="arcade-modal overlay-modal" onclick="if (event.target === this) AppController.closeModal('settings-modal')">
+      <div class="arcade-modal-card">
+        <div class="result-badge">OPTIONS</div>
+        <h2 class="modal-title">설정</h2>
+        <div id="settings-body" class="settings-body"></div>
+        <div class="result-actions">
+          <button class="arcade-btn" onclick="AppController.resetSettings()">기본값</button>
+          <button class="arcade-btn primary" onclick="AppController.closeModal('settings-modal')">확인 [ESC]</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         MODAL 5: RECORDS
+         ==================================================================== -->
+    <div id="records-modal" class="arcade-modal overlay-modal" onclick="if (event.target === this) AppController.closeModal('records-modal')">
+      <div class="arcade-modal-card wide">
+        <div class="result-badge">PLAYER RECORDS</div>
+        <h2 class="modal-title">전적 기록</h2>
+        <div id="records-body" class="records-body"></div>
+        <div class="result-actions">
+          <button class="arcade-btn" onclick="AppController.resetRecords()">기록 초기화</button>
+          <button class="arcade-btn primary" onclick="AppController.closeModal('records-modal')">닫기 [ESC]</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen Transition Wipe & Toasts -->
+    <div id="screen-wipe" class="screen-wipe"></div>
+    <div id="toast-stack" class="toast-stack"></div>
+    <div class="crt-overlay"></div>
   </div>
 
   <!-- Scripts -->
